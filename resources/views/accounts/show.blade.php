@@ -1,14 +1,14 @@
 @extends("layouts.app")
 @section("content")
     <h1>
-        Account: {{ $account->name }}</h1>
-    <ul class="list-unstyled">
-        <li><strong>Number:</strong> {{ $account->number }}</li>
-        <li><strong>Type:</strong> {{ $account->type }}</li>
-        <li><strong>Balance:</strong> {{ $account->balance }}</li>
+        حساب العميل : {{ $account->name }}</h1>
+    <ul class="i navbar-nav ">
+        <li class="nav-item"><strong>رقم الحساب:</strong> {{ $account->number }}</li>
+        <li class="nav-item"><strong> نوع الحساب :</strong> {{__("trans." . $account->type)}}</li>
+        <li class="nav-item"><strong>الرصيد :</strong> {{ $account->balance }}</li>
     </ul>
     <div class="mb-3">
-        <a href="{{ route("accounts.index") }}" class="btn btn-secondary">رجوع</a>
+        {{-- <a href="{{ route("accounts.index") }}" class="btn btn-secondary">رجوع</a> --}}
 
         @if ($account->kind === "receipt")
                    
@@ -30,7 +30,7 @@
                     <th>التاريخ</th>
                     <th>النوع</th>
                     {{-- <th>المبلغ</th> --}}
-                    <th>دائن</th>
+                    <th >دائن</th>
                     <th>مدين</th>
                     <th>الوصف</th>
                     <th>إجراء</th>
@@ -51,14 +51,14 @@
                             @if ($t->type === "debit")
                                 {{ $t->amount }}+
                             @else
-                                ---
+                                --------
                             @endif
                         </td>
                         <td class="text-danger">
                             @if ($t->type === "credit")
                                 {{ $t->amount }}-
                             @else
-                                ---
+                                --------
                             @endif
                         </td>
                         {{-- <td>{{ $account->type == "credit" ?  $account->amount : -}}</td> --}}

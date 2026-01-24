@@ -20,8 +20,10 @@ class SaleController extends Controller
 {
     public function index()
     {
+        $customers = Customer::pluck('name', 'id');
+
         $sales = Sales::latest()->paginate(15);
-        return view('sales.index', compact('sales'));
+        return view('sales.index', compact('sales' , 'customers'));
     }
 
     public function create()
@@ -57,7 +59,7 @@ class SaleController extends Controller
             $Item = Item::findOrFail($id);
             if ($Item->stock < $quantities['quantity']) {
                 // DB::rollBack();
-                return response()->json(['error' => false, 'message' => "الكمية المتاحة من المنتج {$Item->name} أقل من المطلوب"], 422);
+                return redirect()->back()->withErrors( "الكمية المتاحة من المنتج {$Item->name} أقل من المطلوب");
             }
             $lineTotal = $Item->price * $quantities['quantity'];
             $total_price += $lineTotal;
@@ -69,7 +71,7 @@ class SaleController extends Controller
             ];
 
             // decrement stock
-            $Item->decrement('stock', $quantities['quantity']);
+            // $Item->decrement('stock', $quantities['quantity']);
             Stock::create([
                 'item_id' => $Item->id,
                 'change' => -1 * $quantities['quantity'],
@@ -107,8 +109,8 @@ class SaleController extends Controller
         }
         // Revenue account
         $revenueBank = Bank::firstOrCreate(
-            ['name' => 'الايرادات'],
-            ['type' => 'revenue', 'number' => 'REV', 'balance' => 0]
+            ['name' => 'ايرادات المبيعات'],
+            ['type' => 'revenue', 'number' => "ct-{{$customerBank}}", 'balance' => 0]
         );
         if (!$customerBank) {
             $customerBank = Bank::firstOrCreate(

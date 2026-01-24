@@ -6,6 +6,7 @@ use App\Models\PurchaseLine;
 use App\Models\Purchase;
 use App\Models\Item;
 use App\Models\Stock;
+use App\Models\Supplier;
 use App\Models\Bank;
 use App\Models\Stock as ModelsStock;
 use App\Models\Transaction;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 class PurchaseLineController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request ,Supplier $Supplier)
     {
         $data = $request->validate([
             'purchase_id' => 'required|exists:purchases,id',
@@ -30,8 +31,9 @@ class PurchaseLineController extends Controller
         // increment item stock
         $item = Item::find($data['item_id']);
         if ($item) {
-            $item->increment('stock', $data['quantity']);
+            // $item->increment('stock', $data['quantity']);
             Stock::create([
+                'purchase_id'=>$data['purchase_id'],
                 'item_id' => $item->id,
                 'change' => $data['quantity'],
                 'type' => 'مشتريات',
@@ -98,7 +100,7 @@ class PurchaseLineController extends Controller
         if (! $supplierBank) {
             $supplierBank = Bank::firstOrCreate(
                 ['name' => $purchase->supplier->name],
-                ['type' => 'liability', 'number' => 'AP', 'total' => 0 , 'kind' => 'payment' ,'kind' => 'payment']
+                ['type' => 'liability', 'number' => 'AP', 'total' => 0 , 'kind' => 'payment' ]
             );
             $purchase->supplier->update([
                 'account_id'=> $supplierBank->id
@@ -108,8 +110,8 @@ class PurchaseLineController extends Controller
 
         // determine inventory or purchases Bank (debit)
         $inventoryBank = Bank::firstOrCreate(
-            ['name' => 'Inventory'],
-            ['type' => 'asset', 'number' => 'INV', 'balance' => 0]
+            ['name' => 'ايردات المشتريات'],
+            ['type' => 'asset', 'number' => 'Inventory', 'balance' => 0]
         );
 
         // Debit inventory (increase asset)

@@ -17,12 +17,22 @@ class Stock extends Model
         'change',
         'type',
         'reference_id',
+        'purchase_id',
         'note',
     ];
 
     public function item() :BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+        public function Sales() :BelongsTo
+    {
+        return $this->belongsTo(Sales::class,'reference_id');
+    }
+
+    public function purchase() :BelongsTo
+    {
+        return $this->belongsTo(Purchase::class ,'purchase_id');
     }
 }
 

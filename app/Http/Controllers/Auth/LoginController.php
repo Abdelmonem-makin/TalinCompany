@@ -28,13 +28,12 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     /**
-     * Create a new controller instance.
+     * Get the login username to be used by the controller.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    public function username()
     {
-        $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
+        return 'name';
     }
 }

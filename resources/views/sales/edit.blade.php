@@ -1,11 +1,7 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container">
     <h1>Edit Sale #{{ $sale->id }}</h1>
-
-    @include('partials.alerts')
-
     <form action="{{ route('sales.update', $sale) }}" method="POST">
         @csrf
         @method('PUT')

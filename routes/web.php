@@ -29,6 +29,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::delete('sale-lines/{saleLine}', [App\Http\Controllers\SaleLineController::class, 'destroy'])->name('sale-lines.destroy');
     // Purchases and lines
     Route::resource('purchases', App\Http\Controllers\PurchaseController::class);
+    Route::post('purchases/{purchase}/confirm', [App\Http\Controllers\PurchaseController::class, 'confirm'])->name('purchases.confirm');
     Route::post('purchase-lines', [App\Http\Controllers\PurchaseLineController::class, 'store'])->name('purchase-lines.store');
     Route::delete('purchase-lines/{purchaseLine}', [App\Http\Controllers\PurchaseLineController::class, 'destroy'])->name('purchase-lines.destroy');
     Route::resource('accounts', App\Http\Controllers\AccountController::class);

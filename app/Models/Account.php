@@ -27,10 +27,10 @@ class Account extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    // public function customers()
-    // {
-    //     return $this->hasMany(Customer::class ,);
-    // }
+    public function customers()
+    {
+        return $this->hasMany(Customer::class ,);
+    }
 
     public function suppliers()
     {

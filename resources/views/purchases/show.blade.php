@@ -6,6 +6,12 @@
         <h1>   مشتريات المورد / {{ $purchase->supplier->name }} </h1>
         <div>
             <a href="{{ route('purchases.index') }}" class="btn btn-secondary">رجوع</a>
+            @if($purchase->status !== 'received')
+                <form action="{{ route('purchases.confirm', $purchase) }}" method="POST" style="display:inline-block">
+                    @csrf
+                    <button class="btn btn-success" onclick="return confirm('تأكيد استلام المشتريات؟')">تأكيد الاستلام</button>
+                </form>
+            @endif
             {{-- <a href="{{ route('purchases.edit', $purchase) }}" class="btn btn-warning">Edit</a> --}}
         </div>
     </div>
@@ -53,7 +59,7 @@
     <hr>
 
     <h4>مشتريات جديده!</h4>
-    <form action="{{ route('purchase-lines.store') }}" method="POST" class="mb-4">
+    <form action="{{ route('purchase-lines.store', $purchase->supplier->id) }}" method="POST" class="mb-4">
         @csrf
         <input type="hidden" name="purchase_id" value="{{ $purchase->id }}">
 

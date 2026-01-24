@@ -11,19 +11,12 @@
         <div class="card p-3">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <input class="form-control" placeholder="بحث بالاسم    ">
+                    <input class="form-control" placeholder="بحث بالاسم"    oninput="searchTable()"  id="searchInput">
                 </div>
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option>كل الأنواع</option>
-                        <option>صيدلية</option>
-                        <option>مستشفى</option>
-                        <option>موزع فرعي</option>
-                    </select>
-                </div>
+          
             </div>
-            <table class="table-striped table">
+            <table id="dataTable" class="table-striped table">
                 <thead>
                     <tr>
                         <th>اسم المورد</th>
@@ -42,9 +35,9 @@
                                 {{-- <a class="btn btn-sm btn-outline-secondary"
                                     href="{{ route("customers.show", $cust) }}">عرض</a> --}}
                                 <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#EditeModal">تعديل</a>
+                                    data-bs-target="#EditeModal-{{ $cust->id }}">تعديل</a>
 
-                                <div class="modal fade" id="EditeModal" tabindex="-1" data-bs-backdrop="static"
+                                <div class="modal fade" id="EditeModal-{{ $cust->id }}" tabindex="-1" data-bs-backdrop="static"
                                     data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId"
                                     aria-hidden="true">
                                     <div class="modal-dialog">
@@ -61,11 +54,7 @@
                                                         <input name="name" class="form-control"
                                                             value="{{ $cust->name }}">
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">البريد الالكترني</label>
-                                                        <input name="email" class="form-control"
-                                                            value="{{ $cust->email }}">
-                                                    </div>
+                                       
                                                     <div class="mb-3">
                                                         <label class="form-label">رقم الهاتف</label>
                                                         <input name="phone" class="form-control"
@@ -97,40 +86,24 @@
             </table>
     </main>
 
-    <!-- Add custamers Modal -->
-    <div class="modal fade" id="addSupplierModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">إضافة مورد</h5>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ route("customers.store") }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label">اسم المورد</label>
-                            <input name="name" class="form-control" value="{{ old("name") }}">
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">رقم الهاتف</label>
-                            <input name="phone" class="form-control" value="{{ old("phone") }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">العنوان</label>
-                            <textarea name="address" class="form-control">{{ old("address") }}</textarea>
-                        </div>
-                        <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
-                        <button class="btn btn-primary">اضافه</button>
-                    </form>
-
-                </div>
-                <div class="modal-footer">
-
-                </div>
-            </div>
-        </div>
-    </div>
-
+  <script>
+            function searchTable() {
+                let input = document.getElementById('searchInput').value.toLowerCase();
+                let table = document.getElementById('dataTable');
+                let tr = table.getElementsByTagName('tr');
+                for (let i = 1; i < tr.length; i++) {
+                    let tds = tr[i].getElementsByTagName('td');
+                    let found = false;
+                    for (let j = 0; j < tds.length; j++) {
+                        if (tds[j] && tds[j].textContent.toLowerCase().indexOf(input) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    tr[i].style.display = found ? '' : 'none';
+                }
+            }
+        </script>
     {{ $customers->links() }}
 @endsection

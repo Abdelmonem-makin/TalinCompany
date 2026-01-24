@@ -42,6 +42,7 @@ class StockController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
             'customer_id' => 'nullable|exists:customers,id',
             'sign' => 'nullable|in:-1,1',
+            'expiry' => 'nullable|date',
         ]);
 
         // apply sign if provided (issue -> negative)
@@ -50,12 +51,18 @@ class StockController extends Controller
         }
 
         // attach supplier/customer info into note (lightweight)
+
         $meta = [];
         if (!empty($validated['supplier_id'])) {
-            $meta[] = 'استلام مشتريات من المورد:' . $validated['supplier_id'];
+        $supplier = \App\Models\Supplier::findOrFail($validated['supplier_id']);
+
+            $meta[] = 'استلام مشتريات من المورد :- ' . $supplier->name ;
         }
+
         if (!empty($validated['customer_id'])) {
-            $meta[] = 'صرف مبيعات الى عميل :' . $validated['customer_id'];
+        $customer = \App\Models\Customer::findOrFail($validated['customer_id']);
+
+            $meta[] = 'صرف مبيعات الى عميل :- ' . $customer->name;
         }
         if (!empty($meta)) {
             $validated['note'] = trim(($validated['note'] ?? '') . ' | ' . implode(' | ', $meta), " | ");
@@ -63,15 +70,17 @@ class StockController extends Controller
 
         // build data for Stock (only fillable fields)
         $stockData = [
+
             'item_id' => $validated['item_id'],
             'change' => $validated['change'],
-            'type' => $validated['type'] ?? null,
+             'type' => !empty($validated['customer_id'] ) ? 'مبيعات': 'مشتريات' ,
             'reference_id' => $validated['reference_id'] ?? null,
             'note' => $validated['note'] ?? null,
+            'expiry' => $validated['expiry'] ?? null,   
         ];
 
         $stock = Stock::create($stockData);
-
+        
         // also update item stock
         $item = Item::find($stockData['item_id']);
         if ($item) {

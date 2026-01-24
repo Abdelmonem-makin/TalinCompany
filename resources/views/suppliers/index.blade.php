@@ -10,32 +10,16 @@
         <div class="card p-3">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <input class="form-control" placeholder="بحث بالاسم أو الرقم">
+                    <input class="form-control" id="searchInput" placeholder="بحث بالاسم أو الرقم" oninput="searchTable()">
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option>كل المناطق</option>
-                        <option>المنطقة الشمالية</option>
-                        <option>المنطقة الجنوبية</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option>كل الأنواع</option>
-                        <option>صيدلية</option>
-                        <option>مستشفى</option>
-                        <option>موزع فرعي</option>
-                    </select>
-                </div>
+
             </div>
             <div class="table-responsive">
-                <table class="table-hover table">
+                <table id="dataTable" class="table-hover table">
                     <thead>
                         <tr>
                             <th>اسم المورد</th>
-                            {{-- <th>البريد الإلكتروني</th> --}}
                             <th>العنوان</th>
-
                             <th>الهاتف</th>
                             <th>إجراءات</th>
                         </tr>
@@ -51,15 +35,16 @@
                                     {{-- <a class="btn btn-sm btn-outline-secondary"
                                         href="{{ route("suppliers.show", $s) }}">View</a> --}}
                                     <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
-                                        data-bs-target="#EditeModal">تعديل</a>
+                                        data-url="{{ $s->id }}" data-method="get"
+                                        data-bs-target="#EditeModal-{{ $s->id }}">تعديل</a>
 
-                                    <div class="modal fade" id="EditeModal" tabindex="-1" data-bs-backdrop="static"
+                                    <div class="modal fade" id="EditeModal-{{ $s->id }}" tabindex="-1" data-bs-backdrop="static"
                                         data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId"
                                         aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">تعديل بيانات مورد</h5>
+                                                    <h5 class="modal-title"> تعديل بيانات مورد {{ $s->name }}</h5>
                                                 </div>
                                                 <div class="modal-body">
                                                     <form method="POST" action="{{ route("suppliers.update", $s) }}">
@@ -166,6 +151,23 @@
         @endforeach
     </tbody>
 </table> --}}
-
+    <script>
+        function searchTable() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let table = document.getElementById('dataTable');
+            let tr = table.getElementsByTagName('tr');
+            for (let i = 1; i < tr.length; i++) {
+                let tds = tr[i].getElementsByTagName('td');
+                let found = false;
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j] && tds[j].textContent.toLowerCase().indexOf(input) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+    </script>
     {{ $suppliers->links() }}
 @endsection

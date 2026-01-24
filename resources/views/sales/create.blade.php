@@ -70,7 +70,7 @@
                                             <th> #</th>
                                             <th> اسم الدواء</th>
                                             {{-- <th>الصورة</th> --}}
-                                            {{-- <th>القسم</th> --}}
+                                            <th>الكميه</th>
                                             {{-- <th>الوصف</th> --}}
                                             {{-- <th>سعر الشراء</th> --}}
                                             <th>السعر </th>
@@ -84,6 +84,7 @@
                                                 <tr>
                                                     <th class="pt-4" scope="row">{{ $index + 1 }}</th>
                                                     <th scope="row">{{ $Product->name }}</th>
+                                                    <th scope="row">{{ $Product->stock }}</th>
                                                     <th scope="row">{{ $Product->price }}</th>
 
                                                     <th>
@@ -137,7 +138,7 @@
                                                             class="form-select form-select-md @error("customer_id") is-invalid @enderror"
                                                             name="customer_id" id="customer_id"
                                                             data-placeholder=" اختار عميل ....." style="width:100%">
-                                                            <option value="" selected>اسم المورد </option>
+                                                            <option value="" selected>عميل افتراضي</option>
 
                                                             @isset($customers)
                                                                 @foreach ($customers as $customer)
@@ -146,7 +147,6 @@
                                                                     </option>
                                                                 @endforeach
                                                             @endisset
-
                                                         </select>
                                                         @error("TransactionType")
                                                             <span class="text-danger" role="alert">

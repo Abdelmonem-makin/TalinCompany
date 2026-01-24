@@ -9,7 +9,7 @@ class SuppliersTableSeeder extends Seeder
 {
     public function run()
     {
-        Supplier::create(["name" => "مورد A",   "phone" => "0120000001", "address" => "المنطقة"]);
-        Supplier::create(["name" => "مورد B",  "phone" => "0120000002", "address" => "المنطقة"]);
+        Supplier::create(["name" => "Adam",  "phone" => "0120000001", "address" => "المنطقة"]);
+        Supplier::create(["name" => "Ahmed",  "phone" => "0120000002", "address" => "المنطقة"]);
     }
 }

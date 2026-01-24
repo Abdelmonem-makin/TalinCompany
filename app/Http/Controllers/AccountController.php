@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Bank;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -11,7 +12,9 @@ class AccountController extends Controller
     public function index()
     {
         $accounts = Bank::paginate(15);
-        return view('accounts.index', compact('accounts'));
+        $account= Bank::where('type', 'CASH')->pluck('name', 'id');
+        $customers = Customer::get();
+        return view('accounts.index', compact('accounts', 'account', 'customers'));
     }
 
     public function debts()
@@ -19,7 +22,7 @@ class AccountController extends Controller
         // Customers with linked account balances (accounts receivable)
         $customers = \App\Models\Customer::with('bank')
             ->get()
-            ->map(function($c){
+            ->map(function ($c) {
                 return [
                     'id' => $c->id,
                     'name' => $c->name,
@@ -30,7 +33,7 @@ class AccountController extends Controller
         // Suppliers with linked account balances (accounts payable)
         $suppliers = \App\Models\Supplier::with('bank')
             ->get()
-            ->map(function($s){
+            ->map(function ($s) {
                 return [
                     'id' => $s->id,
                     'name' => $s->name,
@@ -64,7 +67,7 @@ class AccountController extends Controller
         // load receipts/payments related to this account using `kind` for reliability
         $transactions = $account->transactions()
             ->with('bank')
-            ->orderBy('date', 'desc')
+            ->orderBy('date')
             ->paginate(25);
 
         return view('accounts.show', compact('account', 'transactions'));

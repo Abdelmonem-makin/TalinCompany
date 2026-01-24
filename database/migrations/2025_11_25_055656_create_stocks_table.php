@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();
             $table->integer('change');
             $table->string('type')->nullable(); // e.g. purchase, sale, adjustment
-            $table->unsignedBigInteger('reference_id')->nullable();
+            $table->date('expiry')->nullable();
+            $table->unsignedBigInteger('reference_id')->references('id')->on('sales')->nullOnDelete()->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
         });

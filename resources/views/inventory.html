@@ -44,11 +44,11 @@
         <div class="modal-body">
           <form id="receiveForm">
             <div class="mb-2"><label class="form-label">المورد</label><input class="form-control" name="supplier"></div>
-            <div class="mb-2"><label class="form-label">المنتج (SKU)</label><input class="form-control" name="sku"></div>
+            <div class="mb-2"><label class="form-label">المنتج (SKU)</label><input hidden class="form-control" name="sku"></div>
             <div class="row g-2"><div class="col-md-4"><label class="form-label">الكمية</label><input class="form-control" type="number" name="qty"></div><div class="col-md-4"><label class="form-label">رقم التشغيلة</label><input class="form-control" name="batch"></div><div class="col-md-4"><label class="form-label">تاريخ الانتهاء</label><input class="form-control" type="date" name="expiry"></div></div>
           </form>
         </div>
-        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button id="saveReceiveBtn" class="btn btn-success">حفظ</button></div>
+        <div class="modal-footer"><button disabled class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button id="saveReceiveBtn" class="btn btn-success">حفظ</button></div>
       </div>
     </div>
   </div>

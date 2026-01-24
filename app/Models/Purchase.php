@@ -14,6 +14,7 @@ class Purchase extends Model
         'date' => 'datetime'
     ];
     protected $fillable = [
+        'id',
         'supplier_id',
         'date',
         'total',
@@ -33,6 +34,11 @@ class Purchase extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class ,  'supplier_id');
+    }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class , 'purchase_id');
     }
 }

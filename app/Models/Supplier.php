@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     use HasFactory;
-
+    protected $casts = [
+        'id' => 'integer'
+    ];
     protected $fillable = [
+        'id',
         'name',
         'email',
         'phone',
@@ -21,14 +24,17 @@ class Supplier extends Model
     {
         return $this->hasMany(Item::class);
     }
-
+    public function Purchase()
+    {
+        return $this->hasMany(Purchase::class, 'supplier_id');
+    }
     public function account()
     {
-        return $this->belongsTo(Account::class , 'account_id');
+        return $this->belongsTo(Account::class, 'account_id');
     }
-    
+
     public function bank()
     {
-        return $this->belongsTo(Bank::class , 'account_id');
+        return $this->belongsTo(Bank::class, 'account_id');
     }
 }

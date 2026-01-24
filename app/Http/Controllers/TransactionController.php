@@ -13,7 +13,7 @@ class TransactionController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::with('bank')->latest()->paginate(20);
+        $transactions = Transaction::with('bank')->latest()->paginate(10);
         return view('transactions.index', compact('transactions'));
     }
 
@@ -50,7 +50,7 @@ class TransactionController extends Controller
 
     public function createReceipt()
     {
-        $accounts = Bank::pluck('name', 'id');
+        $accounts = Bank::where('type', 'CASH')->pluck('name', 'id');
         $customers = Customer::pluck('name', 'id');
         return view('transactions.receipt', compact('accounts', 'customers'));
     }
@@ -59,8 +59,8 @@ class TransactionController extends Controller
     {
         $data = $request->validate([
             'account_id' => 'nullable|exists:banks,id', // payment Bank (bank/cash) optional: will use default cash if missing
-            'amount' => 'required|numeric|min:0.01',
-            'bank' => 'nullable|numeric|min:0.01',
+            'amount' => 'nullable|numeric|min:0.00',
+            'bank' => 'nullable|numeric|min:0.00',
             'customer_id' => 'nullable|exists:customers,id',
             'description' => 'nullable|string',
             'date' => 'nullable|date',
@@ -73,47 +73,54 @@ class TransactionController extends Controller
             $paymentBank = Bank::find($data['account_id']);
         } else {
             // default to a cash/bank account named 'الصندوق'
-            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0 ,'kind' => 'payment']);
+            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0, 'kind' => 'payment']);
         }
+        $bankAccount = null;
         if (!empty($data['bank']) && $data['bank'] > 0) {
             $bankAccount =   Bank::firstOrCreate(
                 ['name' => 'حساب بنكي'],
-                ['type' => 'Bank', 'number' => 'Bank-01', 'balance' => 0 ,'kind' => 'payment'
-]
+                [
+                    'type' => 'CASH',
+                    'number' => 'Bank-01',
+                    'balance' => 0,
+                    'kind' => 'payment'
+                ]
             );
             // $data['amount'] = $data['amount'] - $data['bank'];
-            if ($bankAccount) {
-                $this->adjustBankBalance($bankAccount, $data['bank'], 'debit',);
-            }
+
         }
         // customer Bank (AR) or create a dedicated AR account for the customer
         $customerBank = null;
         if (!empty($data['customer_id'])) {
             $customer = Customer::find($data['customer_id']);
-            if ($customer) {
-                if ($customer->account_id) {
-                    $customerBank = Bank::find($customer->account_id);
-                }
+            if ($customer && $customer->account_id) {
+                $customerBank = Bank::find($customer->account_id);
             }
         } else {
             // fallback to shared AR account
-            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'CU-ACCUNT-01', 'balance' => 0 , 'kind' => 'receipt']);
+            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'CU-ACCUNT-01', 'balance' => 0, 'kind' => 'receipt']);
         }
         // التحقق من حاسب العميل اذا كان عليه ديون
         if ($customerBank->balance < $data['amount']) {
             return redirect()->back()->withErrors([
                 'amount' => 'المبلغ المدخل أكبر من الرصيد المطلوب من العميل.'
             ]);
-        }
-        // Debit payment Bank (increase asset)
-        Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "قبض", 'date' => $date, 'kind' => 'receipt']);
-        $this->adjustBankBalance($paymentBank, $data['amount'], 'debit');
-        $data['amount'] = $data['amount'] + $data['bank'];
-        // Credit customer AR (decrease AR)
-        Transaction::create(['account_id' => $customerBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $data['description'] ?? "قبض", 'date' => $date, 'kind' => 'receipt']);
-        $this->adjustBankBalance($customerBank, $data['amount'], 'credit');
+        } else {
+            // Debit payment Bank (increase asset)
+            if ($bankAccount) {
+                Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "قبض بنكي من {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
+                $this->adjustBankBalance($bankAccount, $data['bank'], 'debit',);
+            }
+            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "قبض كاش من {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
+            $this->adjustBankBalance($paymentBank, $data['amount'], 'debit');
+            // Credit customer AR (decrease AR)
+            $data['amount'] = $data['amount'] + $data['bank'];
+            $d= $data['amount'] - $data['bank'] ;
+            Transaction::create(['account_id' => $customerBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d.'تم دفع كاش '."تم دفع بنكك" .$data["bank"] : $data['description'].$d , 'date' => $date, 'kind' => 'receipt']);
+            $this->adjustBankBalance($customerBank, $data['amount'], 'credit');
 
-        return redirect()->route('accounts.index')->with('success', ' تم القبض بنجاح .');
+            return redirect()->route('accounts.index')->with('success', ' تم القبض بنجاح .', 'error', $data);
+        }
     }
 
     public function createPayment()
@@ -150,7 +157,7 @@ class TransactionController extends Controller
                 $supplierBank = Bank::find($supplier->account_id);
             }
         } else {
-            $supplierBank = Bank::firstOrCreate(['name' =>  'حساب موردين'], ['type' => 'liability', 'number' => 'AP', 'balance' => 0 ,'kind' => 'payment']);
+            $supplierBank = Bank::firstOrCreate(['name' =>  ' مورد افتراضي'], ['type' => 'liability', 'number' => 'AP', 'balance' => 0, 'kind' => 'payment']);
         }
 
         // Debit supplier/AP to reduce liability

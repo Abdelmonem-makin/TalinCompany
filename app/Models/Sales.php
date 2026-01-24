@@ -29,6 +29,11 @@ class Sales extends Model
     {
         return $this->hasMany(SaleLine::class, 'sale_id');
     }
+    public function Stock()
+    {
+        return $this->hasMany(Stock::class, 'reference_id');
+    }
+    
     public function customer()
     {
         return $this->belongsTo(Customer::class , 'customer_id');
