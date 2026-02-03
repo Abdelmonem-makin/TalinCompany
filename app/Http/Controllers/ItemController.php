@@ -19,7 +19,6 @@ class ItemController extends Controller
     public function create()
     {
         $suppliers = Supplier::pluck('name', 'id');
-        return view('items.create', compact('suppliers'));
     }
 
     public function store(Request $request)
@@ -45,7 +44,7 @@ class ItemController extends Controller
     public function edit(Item $item)
     {
         $suppliers = Supplier::pluck('name', 'id');
-        return view('items.edit', compact('item', 'suppliers'));
+        // return view('items.edit', compact('item', 'suppliers'));
     }
 
     public function update(Request $request, Item $item)
@@ -67,5 +66,16 @@ class ItemController extends Controller
     {
         $item->delete();
         return redirect()->route('items.index')->with('success', 'تم حذف الصنف بنجاح  .');
+    }
+
+    public function getItemsData()
+    {
+        $items = Item::latest()->get(['id', 'name', 'stock', 'price']);
+        return response()->json($items);
+    }
+
+    public function getStock(Item $item)
+    {
+        return response()->json(['stock' => $item->stock]);
     }
 }

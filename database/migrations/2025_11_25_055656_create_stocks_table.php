@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();
-            $table->integer('change');
+            $table->integer('quantity');
+            $table->integer('remaining')->nullable()->default(0);
             $table->string('type')->nullable(); // e.g. purchase, sale, adjustment
             $table->date('expiry')->nullable();
+            $table->string('status');
             $table->unsignedBigInteger('reference_id')->references('id')->on('sales')->nullOnDelete()->nullable();
             $table->text('note')->nullable();
             $table->timestamps();

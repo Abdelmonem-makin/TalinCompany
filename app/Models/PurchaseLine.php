@@ -21,7 +21,7 @@ class PurchaseLine extends Model
 
     public function purchase()
     {
-        return $this->belongsTo(Purchase::class, 'purchase_id');
+        return $this->belongsTo(Purchases::class, 'purchase_id');
     }
 
     public function item()

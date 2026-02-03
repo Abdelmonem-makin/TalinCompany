@@ -2,6 +2,9 @@
 
 @section('content')
 <h1>Payroll Transactions</h1>
+     <div class="col-md-4">
+                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
+                </div>
 <a class="btn btn-primary mb-3" href="{{ route('payroll-transactions.create') }}">New</a>
 
 <table class="table">

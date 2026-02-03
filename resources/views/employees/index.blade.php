@@ -3,6 +3,9 @@
 @section("content")
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>الموظفين</h1>
+             <div class="col-md-4">
+                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
+                </div>
         <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة موظف</a>
 
     </div>

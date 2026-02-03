@@ -3,14 +3,13 @@
     <main class="container py-4">
         <div class="d-flex justify-content-between align-items-center m-2">
             <h1>المنتجات</h1>
+                 <div class="col-md-4">
+                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
+                </div>
             <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal"> إضافة منتج
             </a>
         </div>
-        <div class="row m-2">
-            <div class="col-md-4">
-                <input class="form-control" id="searchInput" oninput="searchTable()" placeholder="بحث بالاسم أو الرقم">
-            </div>
-        </div>
+ 
         <div class="card m-0 p-3">
             <table id="dataTable" class="table-striped table">
                 <thead>

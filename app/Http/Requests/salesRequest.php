@@ -23,7 +23,7 @@ class salesRequest extends FormRequest
     {
         return [
             [
-            // 'customer_id'=>'required',
+            'customer_id'=>'nullable',
             'Bank' => 'nullable|numeric',
             'products' => 'required|array|min:1',
             'products.*.quantity' => 'required|integer|min:1',

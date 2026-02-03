@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
     plugins: [
@@ -10,5 +11,26 @@ export default defineConfig({
             ],
             refresh: true,
         }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'resources/js/order.js',
+                    dest: 'js'
+                },
+                {
+                    src: 'resources/js/printThis.js',
+                    dest: 'js'
+                },
+                {
+                    src: 'resources/js/jquery.number.min.js',
+                    dest: 'js'
+                }
+            ]
+        })
     ],
+    resolve: {
+        alias: {
+            '$': 'jquery'
+        }
+    }
 });

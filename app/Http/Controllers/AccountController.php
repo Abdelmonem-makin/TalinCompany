@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Customer;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -12,9 +13,11 @@ class AccountController extends Controller
     public function index()
     {
         $accounts = Bank::paginate(15);
-        $account= Bank::where('type', 'CASH')->pluck('name', 'id');
+        $Banks= Bank::where('type', 'CASH')->get();
         $customers = Customer::get();
-        return view('accounts.index', compact('accounts', 'account', 'customers'));
+        $suppliers = Supplier::get();
+
+        return view('accounts.index', compact('accounts', 'Banks','suppliers', 'customers'));
     }
 
     public function debts()
@@ -68,6 +71,7 @@ class AccountController extends Controller
         $transactions = $account->transactions()
             ->with('bank')
             ->orderBy('date')
+            ->latest()
             ->paginate(25);
 
         return view('accounts.show', compact('account', 'transactions'));

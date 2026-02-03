@@ -11,14 +11,21 @@ class Stock extends Model
     use HasFactory;
 
     protected $table = 'stocks';
+    protected $casts = [
+        'expiry' => 'date',
+    ];
 
     protected $fillable = [
         'item_id',
-        'change',
+        'quantity',
         'type',
+        'remaining',
+        'status',
         'reference_id',
         'purchase_id',
         'note',
+        'expiry',
+        'is_expired',
     ];
 
     public function item() :BelongsTo
@@ -32,7 +39,7 @@ class Stock extends Model
 
     public function purchase() :BelongsTo
     {
-        return $this->belongsTo(Purchase::class ,'purchase_id');
+        return $this->belongsTo(Purchases::class ,'reference_id');
     }
 }
 

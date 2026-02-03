@@ -57,15 +57,15 @@ class TransactionController extends Controller
 
     public function storeReceipt(Request $request)
     {
+        // dd($request->customer_id);
         $data = $request->validate([
             'account_id' => 'nullable|exists:banks,id', // payment Bank (bank/cash) optional: will use default cash if missing
-            'amount' => 'nullable|numeric|min:0.00',
+            'amount' => 'required|numeric|min:0.00',
             'bank' => 'nullable|numeric|min:0.00',
             'customer_id' => 'nullable|exists:customers,id',
             'description' => 'nullable|string',
             'date' => 'nullable|date',
         ]);
-
         $date = $data['date'] ?? Carbon::now()->toDateString();
 
         // payment Bank (cash/bank) - Debit
@@ -103,7 +103,7 @@ class TransactionController extends Controller
         // التحقق من حاسب العميل اذا كان عليه ديون
         if ($customerBank->balance < $data['amount']) {
             return redirect()->back()->withErrors([
-                'amount' => 'المبلغ المدخل أكبر من الرصيد المطلوب من العميل.'
+                'amount' => '  المبلغ المدخل أكبر من الرصيد المطلوب من العميل : -' . $customerBank->name,
             ]);
         } else {
             // Debit payment Bank (increase asset)
@@ -115,8 +115,8 @@ class TransactionController extends Controller
             $this->adjustBankBalance($paymentBank, $data['amount'], 'debit');
             // Credit customer AR (decrease AR)
             $data['amount'] = $data['amount'] + $data['bank'];
-            $d= $data['amount'] - $data['bank'] ;
-            Transaction::create(['account_id' => $customerBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d.'تم دفع كاش '."تم دفع بنكك" .$data["bank"] : $data['description'].$d , 'date' => $date, 'kind' => 'receipt']);
+            $d = $data['amount'] - $data['bank'];
+            Transaction::create(['account_id' => $customerBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d . 'تم دفع كاش ' . "تم دفع بنكك" . $data["bank"] : $data['description'] . $d, 'date' => $date, 'kind' => 'receipt']);
             $this->adjustBankBalance($customerBank, $data['amount'], 'credit');
 
             return redirect()->route('accounts.index')->with('success', ' تم القبض بنجاح .', 'error', $data);
@@ -133,21 +133,36 @@ class TransactionController extends Controller
     public function storePayment(Request $request,)
     {
         $data = $request->validate([
-            'account_id' => 'exists:banks,id', // payment Bank (bank/cash)
-            'amount' => 'required|numeric|min:0.01',
+            'account_id' => 'nullable|exists:banks,id', // payment Bank (bank/cash)
+            'amount' => 'required|numeric|min:0.00',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'description' => 'nullable|string',
             'date' => 'nullable|date',
+            'bank' => 'nullable|min:0.00',
         ]);
-
+        $paymentBank = null;
         $date = $data['date'] ?? Carbon::now()->toDateString();
 
-        $paymentBank = Bank::find($data['account_id']);
-        // ✅ تحقق من الرصيد قبل الدفع
-        if ($paymentBank->balance < $data['amount']) {
-            return redirect()->back()->withErrors([
-                'amount' => 'المبلغ المدخل أكبر من الرصيد المتاح في الخزينة.'
-            ]);
+        if (!empty($data['account_id'])) {
+            $paymentBank = Bank::find($data['account_id']);
+        } else {
+            // default to a cash/bank account named 'الصندوق'
+            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0, 'kind' => 'payment']);
+        }
+
+        $bankAccount = null;
+        if (!empty($data['bank']) && $data['bank'] <= 0) {
+            $bankAccount =   Bank::where('number', 'Bank-01');
+        }else{
+              $bankAccount =   Bank::firstOrCreate(
+                ['name' => 'حساب بنكي'],
+                [
+                    'type' => 'CASH',
+                    'number' => 'Bank-01',
+                    'balance' => 0,
+                    'kind' => 'payment'
+                ]
+            ); 
         }
         // supplier Bank (AP)
         $supplierBank = null;
@@ -160,15 +175,43 @@ class TransactionController extends Controller
             $supplierBank = Bank::firstOrCreate(['name' =>  ' مورد افتراضي'], ['type' => 'liability', 'number' => 'AP', 'balance' => 0, 'kind' => 'payment']);
         }
 
-        // Debit supplier/AP to reduce liability
-        Transaction::create(['account_id' => $supplierBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? 'دفع', 'date' => $date, 'kind' => 'payment']);
-        $this->adjustBankBalance($supplierBank, $data['amount'], 'debit');
+        // ✅ تحقق من الرصيد قبل الدفع
+        if ($paymentBank->balance < $data['amount'] ) {
+            return redirect()->back()->withErrors([
+                'amount' => 'المبلغ المدخل أكبر من الرصيد المتاح في الخزينة.'
+            ]);
+        } else {
+            // Debit payment Bank (increase asset)
+            if ($bankAccount) {
+                if ($paymentBank->balance < $data['bank']) {
+                    return redirect()->back()->withErrors([
 
-        // Credit payment Bank (cash out)
-        Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $data['description'] ?? 'دفع', 'date' => $date, 'kind' => 'payment']);
-        $this->adjustBankBalance($paymentBank, $data['amount'], 'credit');
+                        'amount' => 'المبلغ المدخل أكبر من الرصيد المتاح في الخزينة.'
+                    ]);
+                } else {
+                    Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $data['description'] ?? "قبض بنكي من {$supplierBank->name}", 'date' => $date, 'kind' => 'receipt']);
+                    $this->adjustBankBalance($bankAccount, $data['bank'], 'credit');
+                }
+            }
+            // Debit supplier/AP to reduce liability
+            if ($supplierBank->balance < $data['amount']  ) {
+                return redirect()->back()->withErrors([
 
-        return redirect()->route('transactions.index')->with('success', 'تم الدفع بنجاح  .');
+                    'amount' => 'المبلغ المدخل أكبر من الرصيد المطلوب للمورد : -' . $supplierBank->name,
+                ]);
+            }
+            Transaction::create(['account_id' => $supplierBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? 'دفع', 'date' => $date, 'kind' => 'payment']);
+            $this->adjustBankBalance($supplierBank, $data['amount'], 'debit');
+
+            $data['amount'] = $data['amount'] + $data['bank'];
+            $d = $data['amount'] - $data['bank'];
+
+            // Credit payment Bank (cash out)
+            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d . 'تم دفع كاش ' . "تم دفع بنكك" . $data["bank"] : $data['description'] . $d, 'date' => $date, 'kind' => 'payment']);
+            $this->adjustBankBalance($paymentBank, $data['amount'], 'credit');
+
+            return redirect()->route('accounts.index')->with('success', 'تم الدفع بنجاح  .');
+        }
     }
 
     protected function adjustBankBalance(Bank $Bank, $amount, $side)

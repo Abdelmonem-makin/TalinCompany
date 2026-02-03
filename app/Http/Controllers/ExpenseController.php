@@ -12,8 +12,10 @@ class ExpenseController extends Controller
 {
     public function index()
     {
+        $accounts = Bank::where('type', 'CASH')->pluck('name', 'id');
+
         $expenses = Expense::with('account')->latest()->paginate(20);
-        return view('expenses.index', compact('expenses'));
+        return view('expenses.index', compact('expenses' ,'accounts'));
     }
 
     public function create()
@@ -96,8 +98,8 @@ class ExpenseController extends Controller
         }
         if (! $paymentAccount) {
             $paymentAccount = bank::firstOrCreate(
-                ['name' => 'Cash'],
-                ['type' => 'bank', 'number' => 'CASH', 'balance' => 0]
+                ['name' => 'الخزينه'],
+                ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0]
             );
         }
 
@@ -112,7 +114,12 @@ class ExpenseController extends Controller
         // adjust balance
         $expenseAccount->balance = ($expenseAccount->balance ?? 0) + $expense->amount;
         $expenseAccount->save();
-
+        // ✅ تحقق من الرصيد قبل الدفع
+        if ($paymentAccount->balance <  $expense->amount ) {
+            return redirect()->back()->withErrors([
+                'amount' => 'المبلغ المدخل أكبر من الرصيد المتاح في الخزينة.'
+            ]);
+        } else {
         // Credit payment account
         Transaction::create([
             'account_id' => $paymentAccount->id,
@@ -128,7 +135,7 @@ class ExpenseController extends Controller
         } else {
             $paymentAccount->balance = ($paymentAccount->balance ?? 0) - $expense->amount;
         }
-        $paymentAccount->save();
+        $paymentAccount->save();}
     }
 
     protected function reverseExpenseAccountingEntries(Expense $expense)

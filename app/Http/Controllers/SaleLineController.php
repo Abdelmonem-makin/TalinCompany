@@ -21,6 +21,11 @@ class SaleLineController extends Controller
             'unit_price' => 'required|numeric|min:0',
         ]);
 
+        $item = Item::find($data['item_id']);
+        if ($item->stock < $data['quantity']) {
+            return redirect()->back()->withErrors(['الكمية المتاحة غير كافية للبيع.']);
+        }
+
         $data['total'] = $data['quantity'] * $data['unit_price'];
 
         $line = SaleLine::create($data);

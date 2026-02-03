@@ -20,7 +20,7 @@ class Sales extends Model
         'date',
         'type',
         'total',
-        'status',
+        // 'status',
     ];
     function payment()  {
         return $this->morphMany(Account::class , 'payable');

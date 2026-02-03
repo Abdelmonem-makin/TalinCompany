@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained('customers')->nullOnDelete();
             $table->date('date')->nullable();
             $table->decimal('total', 12, 2)->default(0);
-            $table->string('status')->default('Panding');
+            // $table->string('status')->default('Panding');
             $table->timestamps();
         });
     }

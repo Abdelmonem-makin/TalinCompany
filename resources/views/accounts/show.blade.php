@@ -1,27 +1,16 @@
 @extends("layouts.app")
 @section("content")
-    <h1>
-        حساب العميل : {{ $account->name }}</h1>
-    <ul class="i navbar-nav ">
-        <li class="nav-item"><strong>رقم الحساب:</strong> {{ $account->number }}</li>
-        <li class="nav-item"><strong> نوع الحساب :</strong> {{__("trans." . $account->type)}}</li>
-        <li class="nav-item"><strong>الرصيد :</strong> {{ $account->balance }}</li>
-    </ul>
+
     <div class="mb-3">
         {{-- <a href="{{ route("accounts.index") }}" class="btn btn-secondary">رجوع</a> --}}
 
         @if ($account->kind === "receipt")
-                   
-    <h3 class="mt-4">سندات القبض    </h3>
-
+     <h1>  سندات قبض حساب العميل : {{ $account->name }} </h1>
         @elseif($account->kind === "payment")
-                    
-    <h3 class="mt-4">سندات     الدفع </h3>
-
+    <h3 class="mt-4">سندات دفع حساب المورد : {{$account->name}}</h3>
         @endif
-
+    <strong>الرصيد :</strong> {{ $account->balance }}
     </div>
-
 
     @if (isset($transactions) && $transactions->count())
         <table class="text-bold table-striped table">
@@ -33,7 +22,6 @@
                     <th >دائن</th>
                     <th>مدين</th>
                     <th>الوصف</th>
-                    <th>إجراء</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,8 +52,7 @@
                         {{-- <td>{{ $account->type == "credit" ?  $account->amount : -}}</td> --}}
                         {{-- <td>{{ $t->type }}</td> --}}
                         <td>{{ $t->description }}</td>
-                        <td><a href="{{ route("transactions.show", $t) }}" class="btn btn-sm btn-outline-secondary">عرض</a>
-                        </td>
+                      
                     </tr>
                 @endforeach
             </tbody>

@@ -11,5 +11,7 @@ class CustomersTableSeeder extends Seeder
     {
         Customer::create(["name" => "Ali",  "phone" => "0100000001", "address" => "المدينة", "address" => "المدينة"]);
         Customer::create(["name" => "Hassan",   "phone" => "0100000002", "address" => "المدينة", "address" => "المدينة"]);
+        Customer::create(["name" => "reda",   "phone" => "0100000002", "address" => "المدينة", "address" => "المدينة"]);
+        Customer::create(["name" => "Xyz",   "phone" => "0100000002", "address" => "المدينة", "address" => "المدينة"]);
     }
 }

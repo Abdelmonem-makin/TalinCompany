@@ -6,14 +6,16 @@ $(function () {
         var id = $btn.data('id');
         var price = $btn.data('price');
 
-        var html = '<div id="cart-box-' + id + '" class="cart-shop-item row"> <div class="col-8"><div class="cart-item-title"><h4>' + name +
+        var html = '<div id="cart-box-' + id + '" class="cart-shop-item row"> <div class="col-4"><div class="cart-item-title"><h4>' + name +
             '</h4></div><div class="cart-item-price prodcut-price">' + $.number(price, 2) +
-            '</div></div><div class="col-4 m-auto text-right"> <input data-price="' + price +
-            '" name="products[' + id + '][quantity]" type="number" class="form-control text-center product-quanities m-auto p-0" value="1" min="1"><button type="button" class="btn my-1 px-4 btn-sm remov-prodect-btn btn-danger " data-id="'
+            '</div></div><div class="col-6 m-auto text-right"> <input data-price="' + price +
+            '" name="products[' + id + '][quantity]" type="number" class="form-control text-center product-quanities m-auto p-0" value="1" min="1"></div><div class="col-2 m-auto text-right"> <button type="button" class="btn my-1 px-4 btn-sm remov-prodect-btn btn-danger " data-id="'
             + id + '"><i class="fa fa-trash mx-1" aria-hidden="true"></i></button></div><hr></div> ';
         // avoid adding duplicate item if already in cart
         if ($('#cart-sales-box-' + id).length === 0) {
             $('.cart-sales-shoping').append(html);
+            calculat();
+
             $btn.removeClass('btn-dark').addClass('btn-default disabled');
             $('#add-sales-btn').removeClass('btn-default disabled').addClass('btn-dark');
         }
@@ -25,9 +27,9 @@ $(function () {
         var name = $btn.data('name');
         var id = $btn.data('id');
         var price = $btn.data('price');
-        var html = '   <div id="cart-box-' + id + '" class="cart-shop-item row"> <div class="col-8"><div class="cart-item-title"><h4>' + name +
+        var html = '   <div id="cart-box-' + id + '" class="cart-shop-item row"> <div class="col-6"><div class="cart-item-title"><h4>' + name +
             '</h4></div><div class="cart-item-price prodcut-price">' + $.number(price, 2) +
-            '</div></div><div class="col-4 m-auto text-right"> <input data-price="' + price +
+            '</div></div><div class="col-6 m-auto text-right"> <input data-price="' + price +
             '" name="products[' + id + '][quantity]" type="number" class="form-control text-center product-quanities m-auto p-0" value="1" min="1"><button type="button" class="btn my-1 px-4 btn-sm remov-prodect-btn btn-danger " data-id="'
             + id + '"><i class="fa fa-trash mx-1" aria-hidden="true"></i></button></div><hr></div> ';
         // avoid adding duplicate item if already in cart
@@ -93,14 +95,11 @@ $(function () {
         $('#print-bill').printThis();
     });
 });
-
-
 function calculat() {
     var price = 0;
 
     $('.cart-shop-item .prodcut-price').each(function (index) {
         price += parseFloat($(this).html().replace(/,/g, ''));
-
     });
     // console.log($.number(price,2));
     $('.total-price').html($.number(price, 2));
@@ -111,6 +110,4 @@ function calculat() {
         // Visual disabled state and disable click
         $('#add-order-btn').addClass('disabled').prop('disabled', true);
     }
-
-
 }//دالة حستب اجمال قمة المبيعات

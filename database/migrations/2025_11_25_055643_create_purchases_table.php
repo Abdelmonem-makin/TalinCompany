@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete();
             $table->date('date')->nullable();
             $table->decimal('total', 12, 2)->default(0);
-            $table->string('status')->default('draft');
             $table->timestamps();
         });
     }
