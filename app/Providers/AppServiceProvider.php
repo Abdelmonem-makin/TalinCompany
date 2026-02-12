@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Stock;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,11 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $stocks = Stock::whereNotNull('expiry')
-            ->where('status', '!=', 'dispose')
-            ->where('quantity', '>', 0)
-            ->whereDate("expiry", "<=", now()->toDateString())
-            ->update(['is_expired' => 1]);
+        if (Schema::hasTable('stocks')) {
+            $stocks = Stock::whereNotNull('expiry')
+                ->where('status', '!=', 'dispose')
+                ->where('quantity', '>', 0)
+                ->whereDate("expiry", "<=", now()->toDateString())
+                ->update(['is_expired' => 1]);
+        }
 
         Paginator::useBootstrapFive();
         // Share notification data with all views

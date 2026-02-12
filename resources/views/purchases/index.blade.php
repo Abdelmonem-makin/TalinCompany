@@ -6,9 +6,9 @@
                  <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
                 </div>
-            
-                <a class="btn btn-sm btn-primary me-2" href="#" data-bs-toggle="modal"
+                <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
                     data-bs-target="#addFullModal">إضافة مشتريات </a>
+            <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
                
 
         </div>
@@ -89,7 +89,7 @@
                                                     <th>#</th>
                                                     <th>اسم المنتج</th>
                                                     <th>الكمية المتاحة</th>
-                                                    <th>سعر البيع</th>
+                                                    {{-- <th>سعر البيع</th> --}}
                                                     <th>الإجراءات</th>
                                                 </tr>
                                             </thead>
@@ -280,6 +280,43 @@
                 </div>
             </div>
         </div>
+    <!-- Add Supplier Modal -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة مورد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
 
+                    <form id="supplierForm" method="POST" action="{{ route("suppliers.store") }}">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label">اسم المورد</label>
+                            <input name="name" class="form-control" value="{{ old("name") }}">
+                        </div>
+                        {{-- <div class="mb-3">
+                            <label class="form-label">الريد الالكتروني</label>
+                            <input name="email" class="form-control" value="{{ old("email") }}">
+                        </div> --}}
+                        <div class="mb-3">
+                            <label class="form-label">رقم الهاتف</label>
+                            <input name="phone" class="form-control" value="{{ old("phone") }}">
+                        </div>
+                        {{-- <div class="mb-3">
+                            <label class="form-label">العنوان</label>
+                            <textarea name="address" class="form-control">{{ old("address") }}</textarea>
+                        </div> --}}
+                        <div class="modal-footer">
+                            <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
+                            <button id="saveSupplierBtn" class="btn btn-primary">حفظ</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
         {{ $purchases->links() }}
     @endsection

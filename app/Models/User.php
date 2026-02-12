@@ -6,14 +6,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laratrust\Traits\HasRolesAndPermissions;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRolesAndPermissions;
  
     protected $fillable = [
         'name',
+        'email',
+        'password',
 
     ];
 
@@ -34,5 +37,10 @@ class User extends Authenticatable
        public function sales()
     {
         return $this->hasMany(sales::class);
+    }
+
+    public function attachRole($role)
+    {
+        return $this->addRole($role);
     }
 }

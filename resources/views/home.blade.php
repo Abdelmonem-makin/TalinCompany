@@ -57,11 +57,11 @@
             <div class="card p-3 shadow-sm">
                 <h6 class="card-title">أعلى العملاء مبيعًا</h6>
                 <ol class="mb-0">
-                    <li>مستشفى الرحمة - $12,000</li>
-                    <li>صيدلية النيل - $9,500</li>
-                    <li>موزع الشرق - $7,200</li>
-                    <li>عيادة الأمل - $5,800</li>
-                    <li>مركز الطبي - $4,200</li>
+                    @forelse($topCustomers as $customer)
+                        <li>{{ $customer->name }} - ${{ number_format($customer->sales_sum_total ?? 0, 2) }}</li>
+                    @empty
+                        <li class="text-muted">لا توجد بيانات</li>
+                    @endforelse
                 </ol>
             </div>
         </div>
@@ -69,22 +69,16 @@
             <div class="card p-3 shadow-sm">
                 <h6 class="card-title">أحدث المعاملات</h6>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        فاتورة رقم 1234
-                        <span class="badge bg-success rounded-pill">$500</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        شراء من مورد ABC
-                        <span class="badge bg-primary rounded-pill">$1,200</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        دفع راتب للموظف X
-                        <span class="badge bg-warning rounded-pill">$800</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        فاتورة رقم 1235
-                        <span class="badge bg-success rounded-pill">$300</span>
-                    </li>
+                    @forelse($recentTransactions as $transaction)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $transaction->description ?? 'معاملة رقم ' . $transaction->id }}
+                            <span class="badge bg-{{ $transaction->kind === 'credit' ? 'success' : 'primary' }} rounded-pill">
+                                ${{ number_format($transaction->amount, 2) }}
+                            </span>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-muted">لا توجد معاملات حديثة</li>
+                    @endforelse
                 </ul>
             </div>
         </div>

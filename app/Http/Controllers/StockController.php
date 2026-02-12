@@ -11,9 +11,16 @@ class StockController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $stocks = Stock::with('item')->latest()->paginate(10);
+        $search = $request->get('search');
+        $stocks = Stock::with('item')->when($search, function ($query) use ($search) {
+            return $query->where('type', 'like', '%' . $search . '%')
+                         ->orWhere('note', 'like', '%' . $search . '%')
+                         ->orWhereHas('item', function ($q) use ($search) {
+                             $q->where('name', 'like', '%' . $search . '%');
+                         });
+        })->latest()->paginate(10)->appends(['search' => $search]);
         $items = Item::pluck('name', 'id');
         $suppliers = \App\Models\Supplier::pluck('name', 'id');
         $has_pending_purchases = \App\Models\Purchases::where('status', '!=', 'received')->exists();
@@ -31,7 +38,7 @@ class StockController extends Controller
             ->where('quantity', '>', 0)
             ->get();
 
-        return view('stock.index', compact('stocks', 'items', 'suppliers', 'has_pending_purchases', 'expiredStocks', 'expiringSoonStocks'));
+        return view('stock.index', compact('stocks', 'items', 'suppliers', 'has_pending_purchases', 'expiredStocks', 'expiringSoonStocks', 'search'));
     }
 
     /**
@@ -58,7 +65,7 @@ class StockController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
             'customer_id' => 'nullable|exists:customers,id',
             'sign' => 'nullable|in:-1,1',
-            'expiry' => 'nullable|date',
+            'expiry' => 'required|date',
         ]);
 
         // apply sign if provided (issue -> negative)

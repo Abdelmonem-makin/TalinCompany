@@ -17,7 +17,7 @@ $(function () {
             calculat();
 
             $btn.removeClass('btn-dark').addClass('btn-default disabled');
-            $('#add-sales-btn').removeClass('btn-default disabled').addClass('btn-dark');
+            $('#add-sales-btn').removeClass('btn-default disabled');
         }
     }); //اضافة المنتج الى السله المخزن
     // delegated handler so buttons added later still work
@@ -71,6 +71,7 @@ $(function () {
         var id = $(this).data('id');
         $('#cart-box-' + id).remove();
         $('#product-' + id).removeClass('btn-default disabled').addClass('btn-dark');
+           $('#add-sales-btn').addClass('btn-default disabled');
         calculat();
     });//حذف العنصر من السله
     $('body').on('click', '#add-order-btn', function () {

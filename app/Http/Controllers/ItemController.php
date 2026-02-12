@@ -8,12 +8,17 @@ use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::with('supplier')->latest()->paginate(15);
+        $search = $request->get('search');
+        $items = Item::with('supplier')->when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('type', 'like', '%' . $search . '%')
+                         ->orWhere('company', 'like', '%' . $search . '%');
+        })->latest()->paginate(15)->appends(['search' => $search]);
         $suppliers = Supplier::pluck('name', 'id');
 
-        return view('items.index', compact('items','suppliers'));
+        return view('items.index', compact('items', 'suppliers', 'search'));
     }
 
     public function create()
@@ -25,8 +30,8 @@ class ItemController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            // 'sku' => 'nullable|string|max:100',
-            // 'description' => 'nullable|string',
+            'type' => 'nullable|string|max:100',
+            'company' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             // 'supplier_id' => 'nullable|exists:suppliers,id',
@@ -51,7 +56,7 @@ class ItemController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:100',
+            'type' => 'nullable|string|max:100',
             'company' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',

@@ -264,7 +264,7 @@ function displayModalProducts(items) {
             '<td>' + (index + 1) + '</td>' +
             '<td>' + item.name + '</td>' +
             '<td>' + item.stock + '</td>' +
-            '<td>' + item.price + '</td>' +
+            // '<td>' + item.price + '</td>' +
             '<td><a class="btn btn-dark btn-sm add-full-product-btn" data-id="' +
             item.id + '" data-name="' + item.name + '" data-price="' + item
                 .price + '" href="#">إضافة</a></td>' +

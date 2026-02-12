@@ -17,11 +17,10 @@ class Item extends Model
 
     protected $fillable = [
         'name',
-        // 'sku',
-        // 'description',
+        'type',
+        'company',
         'price',
         'stock',
-        // 'supplier_id',
     ];
    function sales()
     {

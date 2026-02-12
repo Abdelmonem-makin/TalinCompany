@@ -11,12 +11,14 @@
     <title>{{ config("app.name", "Laravel") }}</title>
 
     <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    {{-- <link rel="dns-prefetch" href="//fonts.bunny.net"> --}}
+    {{-- <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet"> --}}
 
-    <!-- Font Awesome -->
+    <link href="{{ asset("css/bootstrap.min.css") }}" rel="stylesheet">
+    <link href="{{ asset("css/font-awesome.min.css") }}"rel="stylesheet">
+    {{-- <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset("css/font-awesome.min.css") }}">
+    <link rel="stylesheet" href="{{ asset("css/font-awesome.min.css") }}"> --}}
     <STYle>
         .nav-link {
             color: white;
@@ -42,7 +44,7 @@
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="{{ __("Toggle navigation") }}">
+                        aria-expanded="false" }}">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
@@ -103,16 +105,16 @@
                         </ul>
                         <ul class="navbar-nav me-auto">
                             <!-- Notifications Dropdown -->
-                        
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle position-relative" href="#"
                                     id="notificationsDropdown" role="button" data-bs-toggle="dropdown"
                                     aria-expanded="false">
-                                    <i class="fas fa-bell"></i>
+                                    <i class="fa fa-bell"></i>
                                     @if ($expiredStocks->count() + $expiringSoonStocks->count() > 0)
                                         <span
                                             class="position-absolute start-100 translate-middle badge rounded-pill bg-danger top-0">
-                                            {{ $expiringSoonStocks->count() +$expiredStocks->count() }}
+                                            {{ $expiringSoonStocks->count() + $expiredStocks->count() }}
                                             <span class="visually-hidden">تنبيهات المخزون</span>
                                         </span>
                                     @endif
@@ -143,11 +145,12 @@
                                         @endforeach
                                         @if ($expiringSoonStocks->count() > 3)
                                             <li>
-                                                <p class="text-muted mb-1 text-center">و {{ $expiringSoonStocks->count() - 3 }} منتج
+                                                <p class="text-muted mb-1 text-center">و
+                                                    {{ $expiringSoonStocks->count() - 3 }} منتج
                                                     آخر...</p>
                                             </li>
                                         @endif
-                                        @if ($expiredStocks->count() +  $expiringSoonStocks->count() > 0)
+                                        @if ($expiredStocks->count() + $expiringSoonStocks->count() > 0)
                                             <li>
                                                 <hr class="dropdown-divider">
                                             </li>
@@ -184,7 +187,7 @@
                                         </li>
                                     @endif
 
-                                    @if ($expiredStocks->count()+  $expiringSoonStocks->count() == 0)
+                                    @if ($expiredStocks->count() + $expiringSoonStocks->count() == 0)
                                         <li>
                                             <h6 class="dropdown-header text-success"><i
                                                     class="fas fa-check-circle me-2"></i>جميع المنتجات سليمة</h6>
@@ -198,7 +201,6 @@
                                         </li>
                                     @endif
 
-                            
                                 </ul>
                             </li>
 
@@ -212,13 +214,22 @@
                                     <a class="dropdown-item" href="{{ route("logout") }}"
                                         onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        {{ __("Logout") }}
+                                        تسجيل خروج
                                     </a>
 
                                     <form id="logout-form" action="{{ route("logout") }}" method="POST"
                                         class="d-none">
                                         @csrf
                                     </form>
+                                    <a href="{{ route("users.index") }}" class="dropdown-item">
+                                        إدارة المستخدمين
+                                    </a>
+                                    {{-- <a href="{{ route('roles.index') }}" class="dropdown-item">
+                                         إدارة الأدوار
+                                    </a>
+                                    <a href="{{ route('permissions.index') }}" class="dropdown-item">
+                                         إدارة الصلاحيات
+                                    </a> --}}
                                 </div>
                             </li>
                         </ul>

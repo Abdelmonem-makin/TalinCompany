@@ -10,12 +10,16 @@ use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->get('search');
         $accounts = Bank::where('type', 'CASH')->pluck('name', 'id');
 
-        $expenses = Expense::with('account')->latest()->paginate(20);
-        return view('expenses.index', compact('expenses' ,'accounts'));
+        $expenses = Expense::with('account')->when($search, function ($query) use ($search) {
+            return $query->where('description', 'like', '%' . $search . '%')
+                         ->orWhere('category', 'like', '%' . $search . '%');
+        })->latest()->paginate(20)->appends(['search' => $search]);
+        return view('expenses.index', compact('expenses', 'accounts', 'search'));
     }
 
     public function create()
@@ -88,7 +92,7 @@ class ExpenseController extends Controller
         $expenseAccountName = $expense->category ?: 'Expenses';
         $expenseAccount = bank::firstOrCreate(
             ['name' => $expenseAccountName],
-            ['type' => 'expense', 'number' => strtoupper(substr($expenseAccountName,0,4)), 'balance' => 0]
+            ['type' => 'expense', 'number' => 'expense', 'balance' => 0]
         );
 
         // payment account (the account from which expense was paid) or 'Cash'
@@ -99,7 +103,7 @@ class ExpenseController extends Controller
         if (! $paymentAccount) {
             $paymentAccount = bank::firstOrCreate(
                 ['name' => 'الخزينه'],
-                ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0]
+                ['type' => 'CASH', 'number' => 'CASH', 'balance' => 0]
             );
         }
 

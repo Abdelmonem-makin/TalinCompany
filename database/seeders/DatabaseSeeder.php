@@ -18,19 +18,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         Item::factory(5)->create();
-
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'abdo.makin11@gmail.com',
-            'password'=>'11112222'
-        ]);
-        
         $this->call([
+            userTableSeeder::class,
+            laratrustSeeder::class,
             SuppliersTableSeeder::class,
             CustomersTableSeeder::class,
             // ItemsTableSeeder::class,
-        
+
         ]);
     }
 }

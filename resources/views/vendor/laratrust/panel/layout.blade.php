@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="shortcut icon" href="/vendor/laratrust/img/logo.png">
   <title>Laratrust - @yield('title')</title>
-  {{-- <link href="{{ mix('laratrust.css', 'vendor/laratrust') }}" rel="stylesheet"> --}}
+  <link href="{{ mix('laratrust.css', 'vendor/laratrust') }}" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </head>
 <body>
@@ -18,25 +18,25 @@
         <div class="flex items-center">
           <div class="hidden md:block">
             <div class="flex items-baseline">
-              <a href="{{config('laratrust.panel.go_back_route')}}" class="nav-button">← Go Back</a>
-              <a
-                {{-- href="{{ route('laratrust.roles-assignment.index') }}" --}}
+              {{-- <a href="{{config('laratrust.panel.go_back_route')}}" class="nav-button">← Go Back</a> --}}
+              {{-- <a
+                href="{{ route('laratrust.roles-assignment.index') }}"
                 class="ml-4 {{ request()->is('*roles-assignment*') ? 'nav-button-active' : 'nav-button' }}"
-              >
+              > --}}
                 Roles & Permissions Assignment
-              </a>
+              {{-- </a>
               <a
-                {{-- href="{{route('laratrust.roles.index')}}" --}}
+                href="{{route('laratrust.roles.index')}}"
                 class="ml-4 {{ request()->is('*roles') ? 'nav-button-active' : 'nav-button' }}"
               >
                 Roles
               </a>
               <a
-                {{-- href="{{ route('laratrust.permissions.index') }}" --}}
+                href="{{ route('laratrust.permissions.index') }}"
                 class="ml-4 {{ request()->is('*permissions*') ? 'nav-button-active' : 'nav-button' }}"
               >
                 Permissions
-              </a>
+              </a> --}}
             </div>
           </div>
           <div class="ml-10 flex-shrink-0">

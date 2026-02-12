@@ -19,29 +19,29 @@ use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->get('search');
         $customers = Customer::pluck('name', 'id');
         $items = Item::with('supplier')->latest()->paginate(5);
-        $sales = Sales::latest()->paginate(15);
-        return view('sales.index', compact('sales', 'customers', 'items'));
+        $sales = Sales::with('customer')->when($search, function ($query) use ($search) {
+            return $query->where('invoice_number', 'like', '%' . $search . '%')
+                         ->orWhereHas('customer', function ($q) use ($search) {
+                             $q->where('name', 'like', '%' . $search . '%');
+                         });
+        })->latest()->paginate(15)->appends(['search' => $search]);
+        return view('sales.index', compact('sales', 'customers', 'items', 'search'));
     }
-
-    public function create()
-    {
-        $items = Item::latest()->paginate(15);
-        $customers = Customer::get();
-        return view('sales.create', compact('customers', 'items'));
-    }
+ 
 
     public function store(salesRequest $request)
     {
-        // try {
+        try {
         $validator = FacadesValidator::make($request->all(), []);
         if ($validator->fails()) {
             return response()->json(['error' => false, 'message' => 'خطأ في بيانات الطلب', 'errors' => $validator->errors()], 422);
         }
-        DB::beginTransaction( );
+        DB::beginTransaction();
         $total_price = 0;
         $lastInvoice = Sales::orderBy('id', 'desc')->first();
         $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
@@ -89,14 +89,14 @@ class SaleController extends Controller
 
 
         $this->createSalesBankingEntries($Sales, $total_price);
-            DB::commit();
+        DB::commit();
 
         return redirect()->back()->with('success', 'تم الشراء بنجاح');
         return response()->json(['success' => true, 'message' => 'تم الشراء بنجاح']);
-        // } catch (\Throwable $th) {
-        //            return redirect()->back()->with('error', $th);
-        //     // return response()->json(['error' => true, 'message' =>  $th]);
-        // }
+        } catch (\Throwable $th) {
+                   return redirect()->back()->with('error', $th);
+            // return response()->json(['error' => true, 'message' =>  $th]);
+        }
     }
     protected function createSalesBankingEntries(Sales $sale, $amount)
     {
@@ -108,17 +108,17 @@ class SaleController extends Controller
             $customerBank = Bank::find($sale->customer->account_id);
         } else {
 
-            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'CU-ACCUNT-01', 'balance' => 0, 'kind' => 'receipt']);
+            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'customer', 'balance' => 0, 'kind' => 'receipt']);
         }
         // Revenue account
         $revenueBank = Bank::firstOrCreate(
             ['name' => 'ايرادات المبيعات'],
-            ['type' => 'revenue', 'number' => "revenue-01", 'balance' => 0]
+            ['type' => 'revenue', 'number' => "ac-revenue", 'balance' => 0]
         );
         if (!$customerBank) {
             $customerBank = Bank::firstOrCreate(
                 ['name' => $sale->customer->name],
-                ['type' => 'asset', 'number' => 'AR', 'balance' => 0, 'kind' => 'receipt']
+                ['type' => 'asset', 'number' => 'customer', 'balance' => 0, 'kind' => 'receipt']
             );
             $sale->customer->update(['account_id' => $customerBank->id]);
             $sale->save();
@@ -135,7 +135,7 @@ class SaleController extends Controller
 
     function print_salas_order($id)
     {
-        
+
         $sales_pro = Sales::find($id);
         $Sales  = $sales_pro->item;
         $sales = Sales::with('item')->find($id);
@@ -147,13 +147,6 @@ class SaleController extends Controller
         $items = \App\Models\Item::pluck('name', 'id');
         return view('sales.show', compact('sale', 'items'));
     }
-
-    public function edit(Sales $sale)
-    {
-        $customers = Customer::pluck('name', 'id');
-        return view('sales.edit', compact('sale', 'customers'));
-    }
-
     public function getSaleData(Sales $sale)
     {
         $lines = $sale->item->map(function ($item) {
@@ -327,7 +320,7 @@ class SaleController extends Controller
                 ]);
             }
             $sale->item()->attach($attachData);
-         if ($total_price >  $sale->total) {
+            if ($total_price >  $sale->total) {
                 $old_total = $total_price - $sale->total;
             }
             if ($total_price <  $sale->total) {
@@ -351,85 +344,15 @@ class SaleController extends Controller
     {
         // optional: restore stock from lines
         foreach ($sale->item as $line) {
-
             $line->increment('stock', $line->pivot->stock);
-
             $line->pivot->delete();
         }
-
+        foreach ($sale->Stock as $Stock) {
+            $Stock->delete();
+        }
         $sale->delete();
         return redirect()->route('sales.index')->with('success', 'Sale deleted.');
     }
-
-    // public function confirm(Sales $sale)
-    // {
-    //     // Require authenticated user and simple 'is_accountant' flag on user
-    //     $user = Auth::user();
-    //     if (! $user || ! ($user->is_accountant ?? false)) {
-    //         abort(403, 'Only accountants can confirm sales.');
-    //     }
-
-    //     if ($sale->status === 'confirmed') {
-    //         return redirect()->back()->with('info', 'Sale already confirmed.');
-    //     }
-
-    //     // Recalculate total and persist
-    //     $sale->total = $sale->lines()->sum('total');
-    //     $sale->status = 'confirmed';
-    //     $sale->save();
-
-    //     // For each line, decrement stock and create stock movements
-    //     foreach ($sale->lines as $line) {
-    //         $item = $line->item;
-    //         if ($item) {
-    //             $item->decrement('stock', $line->stock);
-    //             Stock::create([
-    //                 'item_id' => $item->id,
-    //                 'change' => -1 * $line->stock,
-    //                 'type' => 'sale_confirm',
-    //                 'reference_id' => $line->id,
-    //                 'note' => "Sale #{$sale->id} confirmed",
-    //             ]);
-    //         }
-    //     }
-
-    //     // Create accounting entries for the whole sale
-    //     // $this->createSaleAccountingEntries($sale);
-
-    //     return redirect()->route('sales.show', $sale)->with('success', 'Sale confirmed by accountant.');
-    // }
-
-    // protected function createSaleAccountingEntries(Sales $sale)
-    // {
-    //     $date = Carbon::now()->toDateString();
-
-    //     // determine customer account (linked) or fallback to 'Accounts Receivable'
-    //     $customerAccount = null;
-    //     if ($sale->customer && $sale->customer->account_id) {
-    //         $customerAccount = Account::find($sale->customer->account_id);
-    //     }
-
-    //     if (! $customerAccount) {
-    //         $customerAccount = Account::firstOrCreate(
-    //             ['name' => 'Accounts Receivable'],
-    //             ['type' => 'asset', 'number' => 'AR', 'balance' => 0]
-    //         );
-    //     }
-
-    //     // determine revenue account (Sales Revenue)
-    //     $revenueAccount = Account::firstOrCreate(
-    //         ['name' => 'Sales Revenue'],
-    //         ['type' => 'revenue', 'number' => 'SALES', 'balance' => 0]
-    //     );
-
-    //     $amount = $sale->total;
-
-    //     // Debit customer (increase AR)
-    //     $this->createTransactionAndAdjustBalance($customerAccount, $amount, 'debit', "Sale #{$sale->id}", $date);
-
-    //     // Credit revenue
-    //     $this->createTransactionAndAdjustBalance($revenueAccount, $amount, 'credit', "Sale #{$sale->id}", $date);
-    // }
 
     protected function createTransactionAndAdjustBalance(bank $bank, $amount, $side, $description = null, $date = null)
     {

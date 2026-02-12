@@ -21,7 +21,7 @@ class Bank extends Model
 
     public function customers()
     {
-        return $this->hasMany(Customer::class ,'account_id');
+        return $this->hasOne(Customer::class ,'account_id');
     }
     public function Expense()
     {
@@ -29,6 +29,6 @@ class Bank extends Model
     }
     public function suppliers()
     {
-        return $this->hasMany(Supplier::class ,'account_id');
+        return $this->hasOne(Supplier::class ,'account_id');
     }
 }

@@ -87,7 +87,7 @@ class PayrollTransactionController extends Controller
         // Payment Bank (Cash) by default
         $paymentBank = Bank::firstOrCreate(
             ['name' => 'الخزينه'],
-            ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0]
+            ['type' => 'CASH', 'number' => 'CASH', 'balance' => 0]
         );
      if ($paymentBank->balance <  $pt->amount) {
             return redirect()->back()->withErrors([

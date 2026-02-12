@@ -1,7 +1,5 @@
 @extends('laratrust::panel.layout')
-
 @section('title', 'Permissions')
-
 @section('content')
   <div class="flex flex-col">
     @if (config('laratrust.panel.create_permissions'))

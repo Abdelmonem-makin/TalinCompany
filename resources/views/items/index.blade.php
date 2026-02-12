@@ -102,7 +102,7 @@
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">اسم المنتج</label>
-                            <input name="name" class="form-control" value="{{ old("name") }}">
+                            <input name="name" type="text" class="form-control"  >
                         </div>
                         {{-- <div class="mb-3">
                             <label class="form-label">الباتش</label>
@@ -110,21 +110,17 @@
                         </div> --}}
                         <div class="mb-3">
                             <label class="form-label">سعر البيع</label>
-                            <input name="price" class="form-control" value="{{ old("price") }}">
+                            <input name="price" type="number" class="form-control"  >
                         </div>
-                        {{-- <div class="mb-3">
+                        <div class="mb-3">
                             <label class="form-label">الشركه المصنعه</label>
-                            <input name="company" class="form-control" value="{{ old("company") }}">
-                        </div> --}}
-                        {{-- <div class="mb-3">
-                            <label class="form-label">Supplier</label>
-                            <select name="supplier_id" class="form-select">
-                                <option value="">--</option>
-                                @foreach ($suppliers as $id => $name)
-                                    <option value="{{ $id }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div> --}}
+                            <input name="company" type="text" class="form-control"  >
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">نوع الصنف </label>
+                            <input name="type" type="text" class="form-control"  >
+                      
+                        </div>
                         <div class="modal-footer">
                             <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
                             <button class="btn btn-primary">اضافه</button>

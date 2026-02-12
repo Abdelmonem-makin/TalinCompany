@@ -209,7 +209,7 @@
 
                                 <div class="col-md-4">
                                     <label class="form-label">تاريخ الانتهاء</label>
-                                    <input class="form-control" type="date" id='expiry' name="expiry">
+                                    <input class="form-control" type="date" id='expiry' name="expiry" required>
                                 </div>
                             </div>
                     </div>

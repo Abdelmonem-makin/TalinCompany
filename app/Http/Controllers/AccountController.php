@@ -10,14 +10,30 @@ use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Bank::paginate(15);
-        $Banks= Bank::where('type', 'CASH')->get();
+        $search = $request->get('search');
+        $query = Bank::query();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('number', 'like', '%' . $search . '%')
+                  ->orWhere('type', 'like', '%' . $search . '%');
+        }
+
+        $accounts = $query->paginate(8);
+        $Banks = Bank::where('type', 'CASH')->get();
         $customers = Customer::get();
         $suppliers = Supplier::get();
 
-        return view('accounts.index', compact('accounts', 'Banks','suppliers', 'customers'));
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('accounts.partials.table', compact('accounts', 'Banks', 'customers', 'suppliers'))->render(),
+                'pagination' => $accounts->links()->toHtml()
+            ]);
+        }
+
+        return view('accounts.index', compact('accounts', 'Banks', 'suppliers', 'customers'));
     }
 
     public function debts()
@@ -47,10 +63,7 @@ class AccountController extends Controller
         return view('accounts.debts', compact('customers', 'suppliers'));
     }
 
-    public function create()
-    {
-        return view('accounts.create');
-    }
+  
 
     public function store(Request $request)
     {
@@ -70,17 +83,14 @@ class AccountController extends Controller
         // load receipts/payments related to this account using `kind` for reliability
         $transactions = $account->transactions()
             ->with('bank')
-            ->orderBy('date')
+            // ->orderBy('date')
             ->latest()
             ->paginate(25);
 
         return view('accounts.show', compact('account', 'transactions'));
     }
 
-    public function edit(Account $account)
-    {
-        return view('accounts.edit', compact('account'));
-    }
+ 
 
     public function update(Request $request, Account $account)
     {
@@ -95,9 +105,30 @@ class AccountController extends Controller
         return redirect()->route('accounts.index')->with('success', 'تم تحديث بيانات الحساب بنجاح  .');
     }
 
-    public function destroy(Account $account)
+    public function destroy(Bank $account)
     {
-        $account->delete();
-        return redirect()->route('accounts.index')->with('success', '  تم جحذف الحساب بنجاح.');
+        // dd($account);
+        if($account->balance == 0){
+
+            foreach ($account->transactions as $transaction) {
+                $transaction->delete();
+            }
+            foreach ($account->Expense as $Expense) {
+                $Expense->delete();
+            }
+            if ($account->suppliers) {
+                $account->suppliers->update(['account_id' => null]);
+            }
+            if ($account->customers) {
+                $account->customers->update(['account_id' => null]);
+            }
+            $account->delete();
+            return redirect()->back()->with('success', 'تم حذف الحساب بنجاح.');
+
+        } else {
+            return redirect()->back()->withErrors([
+                'amount' => 'هذا الحساب عليه التزام مالي الرجاء الدفع أو السداد أولاً.',
+            ]);
+        }
     }
 }

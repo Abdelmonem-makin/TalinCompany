@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('sku')->nullable()->index();
-            $table->text('company')->nullable();
+            $table->string('type');
+            $table->string('company');
             $table->decimal('price', 10, 2)->default(0);
             $table->integer('stock')->default(0);
-            // $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete();
             $table->timestamps();
         });
     }

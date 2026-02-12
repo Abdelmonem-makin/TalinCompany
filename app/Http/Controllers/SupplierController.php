@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::latest()->paginate(15);
-        return view('suppliers.index', compact('suppliers'));
+        $search = $request->get('search');
+        $suppliers = Supplier::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('email', 'like', '%' . $search . '%')
+                         ->orWhere('phone', 'like', '%' . $search . '%');
+        })->latest()->paginate(15)->appends(['search' => $search]);
+        return view('suppliers.index', compact('suppliers', 'search'));
     }
 
     public function create()

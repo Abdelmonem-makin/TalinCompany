@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-    public function index(Customer $customer)
+    public function index(Request $request)
     {
-        $customers = Customer::latest()->paginate(15);
+        $search = $request->get('search');
+        $customers = Customer::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('phone', 'like', '%' . $search . '%');
+        })->latest()->paginate(15)->appends(['search' => $search]);
         // $accounts = \App\Models\Account::pluck('name', 'id');
-        return view('customers.index', compact('customers' , 'customer'));
+        return view('customers.index', compact('customers', 'search'));
     }
 
     public function create()

@@ -73,7 +73,7 @@ class TransactionController extends Controller
             $paymentBank = Bank::find($data['account_id']);
         } else {
             // default to a cash/bank account named 'الصندوق'
-            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0, 'kind' => 'payment']);
+            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH', 'balance' => 0, 'kind' => 'payment']);
         }
         $bankAccount = null;
         if (!empty($data['bank']) && $data['bank'] > 0) {
@@ -81,7 +81,7 @@ class TransactionController extends Controller
                 ['name' => 'حساب بنكي'],
                 [
                     'type' => 'CASH',
-                    'number' => 'Bank-01',
+                    'number' => 'Bank',
                     'balance' => 0,
                     'kind' => 'payment'
                 ]
@@ -98,7 +98,7 @@ class TransactionController extends Controller
             }
         } else {
             // fallback to shared AR account
-            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'CU-ACCUNT-01', 'balance' => 0, 'kind' => 'receipt']);
+            $customerBank = Bank::firstOrCreate(['name' =>  'عميل افتراضي'], ['type' => 'asset', 'number' => 'customer', 'balance' => 0, 'kind' => 'receipt']);
         }
         // التحقق من حاسب العميل اذا كان عليه ديون
         if ($customerBank->balance < $data['amount']) {
@@ -108,16 +108,16 @@ class TransactionController extends Controller
         } else {
             // Debit payment Bank (increase asset)
             if ($bankAccount) {
-                Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "قبض بنكي من {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
+                Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['bank'], 'type' => 'debit', 'description' => $data['description'] ?? "تم قبض ". $data["bank"]." بنكك من العميل {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
                 $this->adjustBankBalance($bankAccount, $data['bank'], 'debit',);
             }
-            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "قبض كاش من {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
+            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? "تم قبض ". $data['amount'] ." كاش من العميل {$customerBank->name}", 'date' => $date, 'kind' => 'receipt']);
             $this->adjustBankBalance($paymentBank, $data['amount'], 'debit');
             // Credit customer AR (decrease AR)
-            $data['amount'] = $data['amount'] + $data['bank'];
-            $d = $data['amount'] - $data['bank'];
-            Transaction::create(['account_id' => $customerBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d . 'تم دفع كاش ' . "تم دفع بنكك" . $data["bank"] : $data['description'] . $d, 'date' => $date, 'kind' => 'receipt']);
-            $this->adjustBankBalance($customerBank, $data['amount'], 'credit');
+            // $data['amount'] = $data['amount'] + $data['bank'];
+            $d = $data['amount'] + $data['bank'];
+            Transaction::create(['account_id' => $customerBank->id, 'amount' => $d, 'type' => 'credit', 'description' => $bankAccount  ?   $data['description']  .'تم دفع'. $data['amount'] .' كاش ' . "تم دفع " . $data["bank"] ." بنكك": $data['description'] . $d, 'date' => $date, 'kind' => 'receipt']);
+            $this->adjustBankBalance($customerBank, $d, 'credit');
 
             return redirect()->route('accounts.index')->with('success', ' تم القبض بنجاح .', 'error', $data);
         }
@@ -147,7 +147,7 @@ class TransactionController extends Controller
             $paymentBank = Bank::find($data['account_id']);
         } else {
             // default to a cash/bank account named 'الصندوق'
-            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH-01', 'balance' => 0, 'kind' => 'payment']);
+            $paymentBank = Bank::firstOrCreate(['name' => 'الخزينه'], ['type' => 'CASH', 'number' => 'CASH', 'balance' => 0, 'kind' => 'payment']);
         }
 
         $bankAccount = null;
@@ -158,7 +158,7 @@ class TransactionController extends Controller
                 ['name' => 'حساب بنكي'],
                 [
                     'type' => 'CASH',
-                    'number' => 'Bank-01',
+                    'number' => 'Bank',
                     'balance' => 0,
                     'kind' => 'payment'
                 ]
@@ -172,7 +172,7 @@ class TransactionController extends Controller
                 $supplierBank = Bank::find($supplier->account_id);
             }
         } else {
-            $supplierBank = Bank::firstOrCreate(['name' =>  ' مورد افتراضي'], ['type' => 'liability', 'number' => 'AP', 'balance' => 0, 'kind' => 'payment']);
+            $supplierBank = Bank::firstOrCreate(['name' =>  ' مورد افتراضي'], ['type' => 'liability', 'number' => 'supplier', 'balance' => 0, 'kind' => 'payment']);
         }
 
         // ✅ تحقق من الرصيد قبل الدفع
@@ -189,7 +189,7 @@ class TransactionController extends Controller
                         'amount' => 'المبلغ المدخل أكبر من الرصيد المتاح في الخزينة.'
                     ]);
                 } else {
-                    Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $data['description'] ?? "قبض بنكي من {$supplierBank->name}", 'date' => $date, 'kind' => 'receipt']);
+                    Transaction::create(['account_id' => $bankAccount->id, 'amount' => $data['bank'], 'type' => 'credit', 'description' => $data['description'] ??  " تم دفع مبلغ ".$data["bank"] ." الى حساب المورد{$supplierBank->name} ", 'date' => $date, 'kind' => 'receipt']);
                     $this->adjustBankBalance($bankAccount, $data['bank'], 'credit');
                 }
             }
@@ -200,14 +200,14 @@ class TransactionController extends Controller
                     'amount' => 'المبلغ المدخل أكبر من الرصيد المطلوب للمورد : -' . $supplierBank->name,
                 ]);
             }
-            Transaction::create(['account_id' => $supplierBank->id, 'amount' => $data['amount'], 'type' => 'debit', 'description' => $data['description'] ?? 'دفع', 'date' => $date, 'kind' => 'payment']);
-            $this->adjustBankBalance($supplierBank, $data['amount'], 'debit');
+            $d = $data['amount'] + $data['bank'];
 
-            $data['amount'] = $data['amount'] + $data['bank'];
-            $d = $data['amount'] - $data['bank'];
+            Transaction::create(['account_id' => $supplierBank->id, 'amount' =>  $d , 'type' => 'debit', 'description' => $data['description'] ??  ' تم دفع '. $data["bank"] .' بنكك ' .   " تم دفع " . $data['amount']." كاش "  ?? 0 ."بنكك"  , 'date' => $date, 'kind' => 'payment']);
+            $this->adjustBankBalance($supplierBank, $d, 'debit');
 
+       
             // Credit payment Bank (cash out)
-            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . $d . 'تم دفع كاش ' . "تم دفع بنكك" . $data["bank"] : $data['description'] . $d, 'date' => $date, 'kind' => 'payment']);
+            Transaction::create(['account_id' => $paymentBank->id, 'amount' => $data['amount'], 'type' => 'credit', 'description' => $bankAccount  ?   $data['description'] . ' تم دفع '. $data['amount'] .'كاش ' . " الى حساب المورد" .  $supplierBank->name  : $data['description'] . $d, 'date' => $date, 'kind' => 'payment']);
             $this->adjustBankBalance($paymentBank, $data['amount'], 'credit');
 
             return redirect()->route('accounts.index')->with('success', 'تم الدفع بنجاح  .');

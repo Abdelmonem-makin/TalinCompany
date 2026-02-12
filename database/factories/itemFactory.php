@@ -19,7 +19,7 @@ class itemFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'sku' => fake()->name(),
+            'type' => fake()->name(),
             'company' => fake()->name(),
             'price' =>  rand(2500,4500),
             'stock' =>  0,

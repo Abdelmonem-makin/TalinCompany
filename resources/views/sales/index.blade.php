@@ -3,9 +3,12 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>المبيعات</h1>
-     <div class="col-md-4">
-                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
-                </div>
+            <div class="col-md-4">
+                <form method="GET" action="{{ route('sales.index') }}" class="d-flex">
+                    <input type="text" name="search" class="form-control" placeholder="بحث بالاسم أو رقم الفاتورة" value="{{ $search ?? '' }}">
+                    <button type="submit" class="btn btn-outline-secondary ms-2">بحث</button>
+                </form>
+            </div>
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalId">
                 مبيعات جديدة !
             </button>
@@ -30,7 +33,7 @@
                                         <input type="text" class="form-control my-2" id="modal-search-input"
                                             placeholder="البحث عن المنتجات..." oninput="searchModalProducts()">
                                     </div>
-     
+
                                     <script>
                                         function searchModalProducts() {
                                             let input = document.getElementById('modal-search-input').value.toLowerCase();
@@ -163,8 +166,12 @@
                                                                     </div>
                                                                     <div class="col-md-6">
                                                                         <button type="submit" id="add-sales-btn"
-                                                                            class="btn w-100 btn-success disabled my-3 text-center">
+                                                                            class="btn   btn-success disabled my-3 text-center">
                                                                             تاكيد الطلب
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-dark"
+                                                                            data-bs-dismiss="modal">
+                                                                            الغاء
                                                                         </button>
                                                                         {{-- div> --}}
                                                                     </div>
@@ -237,19 +244,15 @@
                             </div>
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                الغاء
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
 
-         
+            <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة
+                عميل</a>
 
         </div>
-    
+
         <div class="card p-3">
             <table id="dataTable" class="table-striped table">
                 <thead>
@@ -317,7 +320,7 @@
                                     @csrf
                                     @method("DELETE")
                                     <button class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Delete sale?')">حذف</button>
+                                        onclick="return confirm('   حذف الفاتوره?')">حذف</button>
                                 </form>
                             </td>
                         </tr>
@@ -327,7 +330,43 @@
         </div>
 
         <!-- Modal for Add Full Purchase -->
+        <div class="modal fade" id="addSupplierModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+            role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">اضافة بيانات عميل</h5>
+                    </div>
+                    <div class="modal-body">
 
+                        <form method="POST" action="{{ route("customers.store") }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">اسم العميل</label>
+                                <input name="name" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">رقم الهاتف</label>
+                                <input name="phone" class="form-control">
+                            </div>
+                            {{-- <div class="mb-3">
+                            <label class="form-label">العنوان</label>
+                            <textarea name="address" class="form-control"> </textarea>
+                        </div> --}}
+                            <div class="modal-footer">
+
+                                <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
+                                <button class="btn btn-primary">تحديث</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="editSalesFullBtn" tabindex="-1" aria-labelledby="editFullModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-xl">
