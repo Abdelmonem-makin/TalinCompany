@@ -14,22 +14,23 @@ return [
     'roles_structure' => [
         'superadministrator' => [
             'users' => 'c,r,u,d',
-            'Product' => 'c,r,u,d',
-            'Order' => 'c,r,u,d',
-            'Stock' => 'c,r,u,d',
-            'supplier' => 'c,r,u,d',
+            'items' => 'c,r,u,d',
             'customers' => 'c,r,u,d',
-            'employe' => 'c,r,u,d',
-            'debt' => 'c,r,u,d',
-            'Expense' => 'c,r,u,d',
+            'suppliers' => 'c,r,u,d',
+            'purchases' => 'c,r,u,d',
+            'sales' => 'c,r,u,d',
+            // 'invoices' => 'c,r,u,d',
+            'stocks' => 'c,r,u,d',
+            'accounts' => 'c,r,u,d',
+            // 'banks' => 'c,r,u,d',
+            'transactions' => 'c,r,u,d',
+            'employees' => 'c,r,u,d',
+            'expenses' => 'c,r,u,d',
+            'payroll' => 'c,r,u,d',
         ],
-        'administrator' => [
-            'users' => 'c,r,u,d',
-            'profile' => 'r,u',
-        ],
-        'user' => [
-            'profile' => 'r,u',
-        ],
+
+        'Admin' => [],
+        'employe' => [],
     ],
 
     'permissions_map' => [

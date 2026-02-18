@@ -8,6 +8,17 @@ use App\Models\Item;
 
 class StockController extends Controller
 {
+    public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:stocks_read'])->only('index');
+        $this->middleware(['permission:stocks_read'])->only('show');
+        $this->middleware(['permission:stocks_create'])->only('create');
+        $this->middleware(['permission:stocks_create'])->only('store');
+        $this->middleware(['permission:stocks_update'])->only('edit');
+        $this->middleware(['permission:stocks_update'])->only('update');
+        $this->middleware(['permission:stocks_delete'])->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */

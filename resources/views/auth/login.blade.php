@@ -7,7 +7,7 @@
             <div class="card shadow-lg border-0">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <h2 class="fw-bold text-primary">تالين</h2>
+                        <h2 class="fw-bold text-primary"> تالين شركة الطبيه </h2>
                         <p class="text-muted">تسجيل الدخول إلى النظام</p>
                     </div>
 
@@ -39,10 +39,12 @@
                                 تسجيل الدخول
                             </button>
                         </div>
-
                       
                     </form>
+                    
                 </div>
+                        <p class=" mt-3 text-center text-primary">powerd by - path techanology</p>
+
             </div>
         </div>
     </div>

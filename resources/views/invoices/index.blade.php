@@ -19,9 +19,15 @@
                 <td>{{ $inv->total }}</td>
                 <td>{{ $inv->status }}</td>
                 <td>
+                    @if (auth()->user()->hasPermission('invoices_read'))
                     <a class="btn btn-sm btn-outline-secondary" href="{{ route('invoices.show', $inv) }}">View</a>
+                    @endif
+                    @if (auth()->user()->hasPermission('invoices_update'))
                     <a class="btn btn-sm btn-outline-primary" href="{{ route('invoices.edit', $inv) }}">Edit</a>
+                    @endif
+                    @if (auth()->user()->hasPermission('invoices_delete'))
                     <form action="{{ route('invoices.destroy', $inv) }}" method="POST" style="display:inline">@csrf @method('DELETE')<button class="btn btn-sm btn-danger">Delete</button></form>
+                    @endif
                 </td>
             </tr>
         @endforeach

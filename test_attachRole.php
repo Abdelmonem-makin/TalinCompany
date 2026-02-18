@@ -6,5 +6,5 @@ $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 $user = App\Models\User::first();
 echo $user->name . "\n";
-$user->attachRole('super_admin');
+$user->attachRole('superadministrator');
 echo "Role attached successfully\n";

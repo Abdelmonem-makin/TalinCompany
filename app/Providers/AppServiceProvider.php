@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
                 ->whereDate("expiry", "<=", now()->toDateString())
                 ->where('quantity', '>', 0)
                 ->get();
-
+ 
             // Products expiring within 7 days
             $expiringSoonStocks = Stock::with('item')
                 // ->where('is_expired', false)

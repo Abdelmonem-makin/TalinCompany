@@ -10,6 +10,18 @@ use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
+            public function __construct()
+    {
+ 
+        $this->middleware('auth');
+        $this->middleware(['permission:accounts_read'])->only('index');
+        $this->middleware(['permission:accounts_read'])->only('show');
+        $this->middleware(['permission:accounts_create'])->only('create');
+        $this->middleware(['permission:accounts_create'])->only('store');
+        $this->middleware(['permission:accounts_update'])->only('edit');
+        $this->middleware(['permission:accounts_update'])->only('update');
+        $this->middleware(['permission:accounts_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');

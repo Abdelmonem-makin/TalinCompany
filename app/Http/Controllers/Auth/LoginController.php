@@ -25,7 +25,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = 'admin/';
+    protected $redirectTo = '/';
 
     /**
      * Get the login username to be used by the controller.

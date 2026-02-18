@@ -88,7 +88,7 @@ class PurchaseLineController extends Controller
                 ]);
 
                 // Update item stock
-                $item->increment('stock', $quantities['quantity']);
+                // $item->increment('stock', $quantities['quantity']);
 
                 Stock::create([
                     'purchase_id' => $purchase->id,
@@ -147,7 +147,7 @@ class PurchaseLineController extends Controller
                 ]);
 
                 // Update item stock
-                $item->increment('stock', $quantities['quantity']);
+                // $item->increment('stock', $quantities['quantity']);
 
                 // Create stock entry for new line
                 Stock::create([

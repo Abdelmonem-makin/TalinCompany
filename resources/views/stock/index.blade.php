@@ -1,41 +1,23 @@
 @extends("layouts.app")
 
 @section("content")
-    <main class="container   px-0 py-4">
+    <main class="container px-0 py-4">
         <div class="d-flex justify-content-between mb-3">
             <h1 class="h4"> حركات المخزون </h1>
             <div class="col-md-4">
-                <input class="form-control" id="searchInput" type="text" placeholder="بحث بالاسم أو الرقم"
+                <input class="form-control" id="searchInput" type="search" placeholder="بحث بالاسم أو الرقم"
                     oninput="searchTable()">
             </div>
-                    @if ($expiringSoonStocks->count() > 0)
-                     <a class="btn btn-outline-info ms-2" href="#" data-bs-toggle="modal" data-bs-target="#expiringSoonModal"
-               >  منتجات تنتهي خلال 7 أيام{{ $expiringSoonStocks->count() }}</a>
-            {{-- <div class="card col-6 border-info mb-3 p-3"> 
-                <h6 class="text-info">تنبيه: منتجات تنتهي خلال 7 أيام</h6>
-                <p class="mb-2">يوجد {{ $expiringSoonStocks->count() }} منتج سينتهي خلال الأسبوع القادم. يرجى مراجعة
-                    المخزون واتخاذ الإجراءات المناسبة.</p>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#expiringSoonModal">عرض المنتجات القريبة من الانتهاء</button>
-                </div>
-            </div> --}}
-        @endif
-                  @if ($expiredStocks->count() > 0)
-                   <a class="btn btn-outline-danger ms-2" href="#" data-bs-toggle="modal" data-bs-target="#expiredModal"
-                id="expiredModalBtn">     ( {{ $expiredStocks->count() }} )  من المنتجات المنتهية </a>
-            {{-- <div class="card col-6 border-danger mb-3 p-3">
-                <h6 class="text-danger">تحذير: منتجات منتهية الصلاحية</h6>
-                <p class="mb-2">يوجد {{ $expiredStocks->count() }} منتج منتهي الصلاحية. يرجى مراجعة المخزون والتخلص من
-                    المنتجات المنتهية فوراً.</p>
-                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#expiredModal">عرض
-                    المنتجات المنتهية</button>
-            </div> --}}
-        @endif 
+            @if ($expiringSoonStocks->count() > 0)
+                <a class="btn btn-outline-info ms-2" href="#" data-bs-toggle="modal"
+                    data-bs-target="#expiringSoonModal"> منتجات تنتهي خلال 7 أيام{{ $expiringSoonStocks->count() }}</a>
+            @endif
+            @if ($expiredStocks->count() > 0)
+                <a class="btn btn-outline-danger ms-2" href="#" data-bs-toggle="modal" data-bs-target="#expiredModal"
+                    id="expiredModalBtn"> ( {{ $expiredStocks->count() }} ) من المنتجات المنتهية </a>
+            @endif
         </div>
         <div class="row">
- 
-
 
         </div>
         <div class="card mt-3 p-3">
@@ -66,8 +48,8 @@
                                 <td>{{ $s->quantity }}</td>
                                 <td>{{ $s->type == "مبيعات" ? $s->Sales->invoice_number ?? "-" : $s->purchase->reference_id ?? "-" }}
                                 </td>
-                                <td>{{__("trans." .  $s->status) }}</td>
-                                <td>{{ $s->expiry ? $s->expiry->format("Y-m-d") : "غير محدد"  }}</td>
+                                <td>{{ __("trans." . $s->status) }}</td>
+                                <td>{{ $s->expiry ? $s->expiry->format("Y-m-d") : "غير محدد" }}</td>
                                 <td>{{ $s->note }}</td>
                                 <td>
                                     @if ($s->type == "مبيعات" && $s->status == "draft")
@@ -127,7 +109,8 @@
                                 value="{{ $s->reference_id ?? "" }}">
                             <div class="mb-2">
                                 <label class="form-label">العميل</label>
-                                <select name="customer_id" id='customer_id' class="form-control">
+                                <input type="hidden" value="" name="customer_id" id="customer_id" required>
+                                <select disabledid='customer_id-v' class="form-control">
                                     <option value=""> عميل افتراضي</option>
                                     @foreach (\App\Models\Customer::pluck("name", "id") as $id => $name)
                                         <option value="{{ $id }}">
@@ -137,7 +120,9 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">المنتج</label>
-                                <select name="item_id" id='item_id' class="form-control" required>
+                                <input type="hidden" value="" name="item_id" id="item_id" required>
+                                
+                                <select disabled id='item_id-v' class="form-control" required>
                                     <option value="">اختر المنتج</option>
                                     @foreach ($items as $id => $name)
                                         <option value="{{ $id }}">
@@ -184,16 +169,19 @@
                             <input name='stock' id='stockid' type="hidden">
                             <div class="mb-2">
                                 <label class="form-label">المورد</label>
-                                <select name="supplier_id" id='supplier_id' class="form-control">
+                                <input type="hidden" value="" name="supplier_id" id="supplier_id" required>
+                                <select   disabled id='supplier_id-v' class="form-control">
                                     <option value=""> مورد افتراضي</option>
                                     @foreach ($suppliers as $id => $name)
                                         <option value="{{ $id }}">{{ $name }}</option>
                                     @endforeach
-                                </select>
+                                </select> 
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">المنتج</label>
-                                <select name="item_id" id='item_id' class="form-control" required>
+                                <input type="hidden" value="" name="item_id" id="item_id" required>
+
+                                <select   disabled id='item_id-v' class="form-control" required>
                                     <option value="">اختر المنتج</option>
                                     @foreach ($items as $id => $name)
                                         <option value="{{ $id }}">{{ $name }}</option>
@@ -294,7 +282,7 @@
                         <h5 class="modal-title">إدارة الأصناف المنتهية</h5><button type="button" class="btn-close"
                             data-bs-dismiss="modal"></button>
                     </div>
-                    <form id="disposeForm" action="{{ route('stock.dispose') }}" method="POST">
+                    <form id="disposeForm" action="{{ route("stock.dispose") }}" method="POST">
                         @csrf
                         <div class="modal-body">
                             <p class="small text-muted">القائمة التالية تعرض الباتشات التي انتهت صلاحيتها حتى اليوم. يمكنك
@@ -313,10 +301,12 @@
                                         @foreach ($expiredStocks as $stock)
                                             <tr>
                                                 <td>{{ $stock->item->name ?? "غير محدد" }}</td>
-                                                <td>{{ $stock->expiry ? $stock->expiry->format("Y-m-d") : "غير محدد" }}</td>
+                                                <td>{{ $stock->expiry ? $stock->expiry->format("Y-m-d") : "غير محدد" }}
+                                                </td>
                                                 <td>{{ $stock->quantity }}</td>
                                                 <td>
-                                                    <input type="number" name="disposals[{{ $stock->id }}]" class="form-control form-control-sm dispose-qty"
+                                                    <input type="number" name="disposals[{{ $stock->id }}]"
+                                                        class="form-control form-control-sm dispose-qty"
                                                         data-stock-id="{{ $stock->id }}" min="0"
                                                         max="{{ $stock->quantity }}" value="0">
                                                 </td>
@@ -349,7 +339,9 @@
                 // تعبئة الحقول
                 modal.querySelector('#stockid').value = stockid;
                 modal.querySelector('#item_id').value = item_id;
+                modal.querySelector('#item_id-v').value = item_id;
                 modal.querySelector('#customer_id').value = customer_id;
+                modal.querySelector('#customer_id-v').value = customer_id;
                 modal.querySelector('#reference_id').value = reference_id;
 
                 // لو ما اتطابق، حدد يدويًا
@@ -380,8 +372,10 @@
                 // تعبئة الحقول
                 modal.querySelector('#stockid').value = id;
                 modal.querySelector('#item_id').value = item_id;
+                modal.querySelector('#item_id-v').value = item_id;
                 modal.querySelector('#expiry').value = expiry;
                 modal.querySelector('#change').value = change;
+                modal.querySelector('#supplier_id-v').value = supplier;
                 modal.querySelector('#supplier_id').value = supplier;
                 modal.querySelector('#reference_id').value = reference_id;
 

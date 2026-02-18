@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        Item::factory(5)->create();
+        // Item::factory(5)->create();
         $this->call([
-            userTableSeeder::class,
             laratrustSeeder::class,
+            userTableSeeder::class,
             SuppliersTableSeeder::class,
             CustomersTableSeeder::class,
-            // ItemsTableSeeder::class,
+            ItemsTableSeeder::class,
 
         ]);
     }

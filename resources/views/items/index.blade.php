@@ -6,8 +6,10 @@
                  <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
                 </div>
+            @if (auth()->user()->hasPermission('items_create'))
             <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal"> إضافة منتج
             </a>
+            @endif
         </div>
  
         <div class="card m-0 p-3">
@@ -16,7 +18,7 @@
                     <tr>
                         <th>اسم المنتجات</th>
                         <th>الشركه المصنعه</th>
-                        <th>رقم الباتش </th>
+                        <th>  الصنف   </th>
                         <th>سعر البيع</th>
                         <th>المخزون</th>
                         <th>اجراء</th>
@@ -27,13 +29,14 @@
                         <tr>
                             <td>{{ $it->name }}</td>
                             <td>{{ $it->company }}</td>
-                            <td>{{ $it->sku }}</td>
+                            <td>{{ $it->type }}</td>
                             <td>{{ $it->price }}</td>
                             <td>{{ $it->stock }}</td>
                             {{-- <td>{{ optional($it->supplier)->name }}</td> --}}
                             <td>
                                 {{-- <a class="btn btn-sm btn-outline-secondary"
                                         href="{{ route("items.show", $it) }}">View</a> --}}
+                                @if (auth()->user()->hasPermission('items_update'))
                                 <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
                                     data-bs-target="#EditeModal">تعديل</a>
 
@@ -78,9 +81,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
+                                @if (auth()->user()->hasPermission('items_delete'))
                                 <form action="{{ route("items.destroy", $it) }}" method="POST" style="display:inline">
                                     @csrf
                                     @method("DELETE")<button class="btn btn-sm btn-danger">حذف</button></form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -117,7 +123,7 @@
                             <input name="company" type="text" class="form-control"  >
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">نوع الصنف </label>
+                            <label class="form-label">  الصنف </label>
                             <input name="type" type="text" class="form-control"  >
                       
                         </div>

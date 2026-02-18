@@ -6,13 +6,13 @@ use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Route;
 
- 
+
 
 // FacadesAuth::routes(['register'=> false]);
 FacadesAuth::routes();
 // Admin resource routes (protected)
 Route::middleware('auth')->group(function () {
-        Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     route::group(['prefix' => 'admin'], function () {
         Route::resource('customers', App\Http\Controllers\CustomerController::class);
         Route::resource('suppliers', App\Http\Controllers\SupplierController::class);
@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('expenses', App\Http\Controllers\ExpenseController::class);
         Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
         Route::resource('users', App\Http\Controllers\UserController::class);
-        Route::resource('roles', App\Http\Controllers\RoleController::class);
-        Route::resource('permissions', App\Http\Controllers\PermissionsController::class);
+        Route::get('users/{user}/data', [App\Http\Controllers\UserController::class, 'getUserData'])->name('users.data');
+        Route::get('users/roles-permissions', [App\Http\Controllers\UserController::class, 'getRolesPermissions'])->name('users.roles-permissions');
     });
 });

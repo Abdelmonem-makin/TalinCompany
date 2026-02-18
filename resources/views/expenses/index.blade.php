@@ -6,7 +6,9 @@
         <div class="col-md-4">
             <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
         </div>
+        @if (auth()->user()->hasPermission('expenses_create'))
         <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addExpensesModal"> اضافة مصروفات </a>
+        @endif
     </div>
 
     <table class="table-striped table">

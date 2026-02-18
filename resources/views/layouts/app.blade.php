@@ -69,14 +69,27 @@
                     </ul> --}}
                         {{-- @else --}}
                         <ul class="navbar-nav text-light ms-auto">
+                            @if (auth()->user()->hasPermission('customers_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("customers.index") }}">العملاء</a></li>
+                            @endif
+                            @if (auth()->user()->hasPermission('suppliers_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("suppliers.index") }}">الموردين</a></li>
+                            @endif
+                            @if (auth()->user()->hasPermission('items_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("items.index") }}">المنتجات</a></li>
+                            @endif
+                            @if (auth()->user()->hasPermission('stocks_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("stock.index") }}">المخزون</a></li>
+                            @endif
+                            @if (auth()->user()->hasPermission('sales_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("sales.index") }}">المبيعات
                                     والفواتير</a></li>
+                            @endif
+                            @if (auth()->user()->hasPermission('purchases_read'))
                             <li class="nav-item"><a class="nav-link" href="{{ route("purchases.index") }}">المشتريات </a>
                             </li>
+                            @endif
+                            @if (auth()->user()->hasPermission('accounts_read') || auth()->user()->hasPermission('employees_read') || auth()->user()->hasPermission('expenses_read') || auth()->user()->hasPermission('invoices_read'))
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -84,12 +97,20 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    @if (auth()->user()->hasPermission('accounts_read'))
                                     <a class="dropdown-item" href="{{ route("accounts.index") }}">الحسابات</a>
+                                    @endif
+                                    @if (auth()->user()->hasPermission('employees_read'))
                                     <a class="dropdown-item" href="{{ route("employees.index") }}">الموظفين</a>
+                                    @endif
                                     {{-- <a class="dropdown-item" href="{{ route("payroll-transactions.index") }}">المرتبات</a> --}}
 
+                                    @if (auth()->user()->hasPermission('expenses_read'))
                                     <a class="dropdown-item" href="{{ route("expenses.index") }}">المصروفات</a>
+                                    @endif
+                                    {{-- @if (auth()->user()->hasPermission('invoices_read'))
                                     <a class="dropdown-item" href="{{ route("invoices.index") }}">التقارير</a>
+                                    @endif --}}
                                     {{-- <a class="dropdown-item" href="{{ route('accounts.debts') }}">الديون</a> --}}
 
                                     {{-- <a class="dropdown-item text-justify" href="{{ route("transactions.index") }}">
@@ -101,6 +122,7 @@
                                     </a>
                                 </div>
                             </li>
+                            @endif
 
                         </ul>
                         <ul class="navbar-nav me-auto">
@@ -221,9 +243,11 @@
                                         class="d-none">
                                         @csrf
                                     </form>
+                                    @if (auth()->user()->hasPermission('users_read'))
                                     <a href="{{ route("users.index") }}" class="dropdown-item">
                                         إدارة المستخدمين
                                     </a>
+                                    @endif
                                     {{-- <a href="{{ route('roles.index') }}" class="dropdown-item">
                                          إدارة الأدوار
                                     </a>

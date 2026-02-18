@@ -36,13 +36,15 @@
                 </div>
       
                 <div class="row mb-3">
-                    <label for="roles" class="col-md-2 col-form-label text-md-end">الأدوار</label>
+                    <label for="roles" class="col-md-2 col-form-label text-md-end">الوظيفه</label>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <select id="roles" class="form-control @error("roles") is-invalid @enderror" name="roles[]" multiple>
-                                <option disabled value="">اختر الأدوار</option>
+
+                                 
+                            <select  class="form-control @error("roles") is-invalid @enderror" name="roles" >
+                                <option disabled value="" selected>اختر الوظيفه</option>
                                 @foreach($roles as $role)
-                                    <option value="{{ $role->id }}" {{ in_array($role->id, old('roles', [])) ? 'selected' : '' }}>{{ $role->display_name }}</option>
+                                    <option value="{{ $role->id }}"  >{{ $role->display_name }}</option>
                                 @endforeach
                             </select>
                             @error("roles")
@@ -118,6 +120,7 @@
                                                     <label style="font-size: 13px;" class="form-check-label">
                                                         <input class="form-check-input"
                                                             name='permissions[]' type="checkbox"
+                                                            {{ auth()->user()->hasPermission($perm['name']) ? '' : 'disabled' }}
                                                             value="{{ $perm['id'] }}" />
                                                         {{ __("trans." . $perm['action']) }} {{ __("trans." . $module) }}
                                                     </label>
@@ -134,8 +137,8 @@
 
                 <div class="row mb-0">
                     <div class="col-md-6 offset-md-4">
-                        <button type="submit" class="btn btn-primary">
-                            {{ __("Register") }}
+                        <button type="submit" class="btn btn-primary" {{ auth()->user()->hasPermission('users_create') ? '' : 'disabled' }}>
+                            اضافة مستخدم
                         </button>
                     </div>
                 </div>

@@ -11,6 +11,17 @@ use Illuminate\Http\Request;
 
 class PayrollTransactionController extends Controller
 {
+        public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:payroll_transactions_read'])->only('index');
+        $this->middleware(['permission:payroll_transactions_read'])->only('show');
+        $this->middleware(['permission:payroll_transactions_create'])->only('create');
+        $this->middleware(['permission:payroll_transactions_create'])->only('store');
+        $this->middleware(['permission:payroll_transactions_update'])->only('edit');
+        $this->middleware(['permission:payroll_transactions_update'])->only('update');
+        $this->middleware(['permission:payroll_transactions_delete'])->only('destroy');
+    }
     public function index()
     {
         $rows = PayrollTransaction::with('employee')->latest()->paginate(20);

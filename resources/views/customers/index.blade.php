@@ -8,7 +8,9 @@
                  <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
                 </div>
+            @if (auth()->user()->hasPermission('customers_create'))
             <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة عميل</a>
+            @endif
 
         </div>
  
@@ -30,6 +32,7 @@
                             <td>
                                 {{-- <a class="btn btn-sm btn-outline-secondary"
                                     href="{{ route("customers.show", $cust) }}">عرض</a> --}}
+                                @if (auth()->user()->hasPermission('customers_update'))
                                 <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
                                     data-bs-target="#EditeModal-{{ $cust->id }}">تعديل</a>
 
@@ -48,22 +51,26 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">اسم العميل</label>
                                                         <input name="name" class="form-control"
-                                                            value="{{ $cust->name }}">
+                                                            value="{{ $cust->name }}"
+                                                            {{ auth()->user()->hasPermission('customers_update') ? '' : 'disabled' }}>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label class="form-label">رقم الهاتف</label>
                                                         <input name="phone" class="form-control"
-                                                            value="{{ $cust->phone }}">
+                                                            value="{{ $cust->phone }}"
+                                                            {{ auth()->user()->hasPermission('customers_update') ? '' : 'disabled' }}>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="form-label">العنوان</label>
-                                                        <textarea name="address" class="form-control">{{ $cust->address }}</textarea>
+                                                        <textarea name="address" class="form-control"
+                                                            {{ auth()->user()->hasPermission('customers_update') ? '' : 'disabled' }}>{{ $cust->address }}</textarea>
                                                     </div>
                                                     <div class="modal-footer">
 
                                                         <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
-                                                        <button class="btn btn-primary">تحديث</button>
+                                                        <button class="btn btn-primary"
+                                                            {{ auth()->user()->hasPermission('customers_update') ? '' : 'disabled' }}>تحديث</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -73,9 +80,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
+                                @if (auth()->user()->hasPermission('customers_delete'))
                                 <form action="{{ route("customers.destroy", $cust) }}" method="POST"
                                     style="display:inline">@csrf @method("DELETE")<button
                                         class="btn btn-sm btn-danger">حذف</button></form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

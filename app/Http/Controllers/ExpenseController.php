@@ -10,6 +10,17 @@ use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
 {
+        public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:expenses_read'])->only('index');
+        $this->middleware(['permission:expenses_read'])->only('show');
+        $this->middleware(['permission:expenses_create'])->only('create');
+        $this->middleware(['permission:expenses_create'])->only('store');
+        $this->middleware(['permission:expenses_update'])->only('edit');
+        $this->middleware(['permission:expenses_update'])->only('update');
+        $this->middleware(['permission:expenses_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');

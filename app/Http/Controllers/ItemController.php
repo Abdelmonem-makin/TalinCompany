@@ -8,6 +8,17 @@ use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
+            public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:items_read'])->only('index');
+        $this->middleware(['permission:items_read'])->only('show');
+        $this->middleware(['permission:items_create'])->only('create');
+        $this->middleware(['permission:items_create'])->only('store');
+        $this->middleware(['permission:items_update'])->only('edit');
+        $this->middleware(['permission:items_update'])->only('update');
+        $this->middleware(['permission:items_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');
@@ -75,7 +86,7 @@ class ItemController extends Controller
 
     public function getItemsData()
     {
-        $items = Item::latest()->get(['id', 'name', 'stock', 'price']);
+        $items = Item::latest()->get(['id', 'name','type', 'stock', 'price']);
         return response()->json($items);
     }
 

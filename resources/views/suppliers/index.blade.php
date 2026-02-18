@@ -4,7 +4,9 @@
     <main class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>إدارة الموردين</h1>
+            @if (auth()->user()->hasPermission('suppliers_create'))
             <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
+            @endif
         </div>
 
         <div class="card p-3">

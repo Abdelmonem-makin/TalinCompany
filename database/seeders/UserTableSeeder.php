@@ -13,18 +13,16 @@ class UserTableSeeder extends Seeder
      */
     public function run(): void
     {
-              // Ensure the 'super_admin' role exists
-        $role = Role::firstOrCreate(
-            ['name' => 'super_admin'],
-            ['display_name' => 'Super Admin', 'description' => 'User with full access']
-        );
-
+        // Ensure the 'super_admin' role exists
+        // $role = Role::firstOrCreate(
+        //     ['name' => 'superadministrator'],
+        //     ['display_name' => 'Super Admin', 'description' => 'User with full access']
+        // );
         $user = \App\Models\User::create([
-            'name' => 'super_admin',
-            // 'email' => 'super_admin@app.com',
+            'name' => 'administrator',
             'password' => bcrypt('password')
         ]);
 
-        $user->addRole('super_admin');
+        $user->attachRole('superadministrator');
     }
 }

@@ -12,6 +12,17 @@ use Illuminate\Http\Request;
 
 class PurchaseController extends Controller
 {
+            public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(['permission:purchases_read'])->only('index');
+        $this->middleware(['permission:purchases_read'])->only('show');
+        $this->middleware(['permission:purchases_create'])->only('create');
+        $this->middleware(['permission:purchases_create'])->only('store');
+        $this->middleware(['permission:purchases_update'])->only('edit');
+        $this->middleware(['permission:purchases_update'])->only('update');
+        $this->middleware(['permission:purchases_delete'])->only('destroy');
+    }
     public function index()
     {
         $suppliers = Supplier::pluck('name', 'id');
@@ -159,6 +170,7 @@ class PurchaseController extends Controller
         $lines = $purchase->purchaseLines->map(function ($line) {
             return [
                 'item_id' => $line->item_id,
+                'item_type' => optional($line->item)->type,
                 'item_name' => optional($line->item)->name,
                 'quantity' => $line->quantity,
                 'unit_price' => $line->unit_price,

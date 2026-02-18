@@ -291,12 +291,12 @@
 
                                             </div>
                                             <div class="modal-body">
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12"> --}}
                                                     <div class="list-order-product">
 
                                                     </div>
 
-                                                </div>
+                                                 
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

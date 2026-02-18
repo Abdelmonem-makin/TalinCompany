@@ -18,7 +18,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class SaleController extends Controller
-{
+{ 
+        public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(['permission:sales_read'])->only('index');
+        $this->middleware(['permission:sales_read'])->only('show');
+        $this->middleware(['permission:sales_create'])->only('create');
+        $this->middleware(['permission:sales_create'])->only('store');
+        $this->middleware(['permission:sales_update'])->only('edit');
+        $this->middleware(['permission:sales_update'])->only('update');
+        $this->middleware(['permission:sales_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');

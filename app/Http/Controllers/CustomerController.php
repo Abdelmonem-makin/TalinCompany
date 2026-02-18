@@ -7,6 +7,17 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+            public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:customers_read'])->only('index');
+        $this->middleware(['permission:customers_read'])->only('show');
+        $this->middleware(['permission:customers_create'])->only('create');
+        $this->middleware(['permission:customers_create'])->only('store');
+        $this->middleware(['permission:customers_update'])->only('edit');
+        $this->middleware(['permission:customers_update'])->only('update');
+        $this->middleware(['permission:customers_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');

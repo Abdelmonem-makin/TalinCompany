@@ -49,6 +49,7 @@
                 @foreach ($purchase->purchaseLines as $line)
                     <tr>
                         <td>{{ optional($line->item)->name }}</td>
+                        <td>{{ optional($line->item)->type }}</td>
                         <td>{{ $line->quantity }}</td>
                         <td>{{ number_format($line->unit_price, 2) }}</td>
                         <td>{{ number_format($line->total, 2) }}</td>

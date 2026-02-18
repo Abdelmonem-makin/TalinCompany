@@ -11,6 +11,17 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
+        public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:transactions_read'])->only('index');
+        $this->middleware(['permission:transactions_read'])->only('show');
+        $this->middleware(['permission:transactions_create'])->only('create');
+        $this->middleware(['permission:transactions_create'])->only('store');
+        $this->middleware(['permission:transactions_update'])->only('edit');
+        $this->middleware(['permission:transactions_update'])->only('update');
+        $this->middleware(['permission:transactions_delete'])->only('destroy');
+    }
     public function index()
     {
         $transactions = Transaction::with('bank')->latest()->paginate(10);

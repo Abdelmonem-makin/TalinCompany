@@ -6,7 +6,9 @@
              <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
                 </div>
+        @if (auth()->user()->hasPermission('employees_create'))
         <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة موظف</a>
+        @endif
 
     </div>
 
@@ -28,14 +30,22 @@
                     <td>{{ $e->position }}</td>
                     <td>{{ $e->salary }}</td>
                     <td>
+                        @if (auth()->user()->hasPermission('employees_read'))
                         <a class="btn btn-sm btn-secondary" href="{{ route("employees.show", $e) }}">عرض</a>
+                        @endif
 
+                        @if (auth()->user()->hasPermission('employees_update'))
                         <a class="btn btn-sm btn-primary" href="{{ route("employees.edit", $e) }}">تعديل</a>
+                        @endif
+                        @if (auth()->user()->hasPermission('payroll_transactions_create'))
                         <a class="btn btn-sm btn-info" href="#" data-bs-toggle="modal"
                             data-bs-target="#addsalaryModal">صرف مرتب </a>
+                        @endif
 
+                        @if (auth()->user()->hasPermission('employees_delete'))
                         <form action="{{ route("employees.destroy", $e) }}" method="POST" style="display:inline">@csrf
                             @method("DELETE")<button class="btn btn-sm btn-danger">حذف</button></form>
+                        @endif
 
                     </td>
                 </tr>

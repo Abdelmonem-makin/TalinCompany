@@ -6,9 +6,13 @@
                  <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
                 </div>
+                @if (auth()->user()->hasPermission('purchases_create'))
                 <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
                     data-bs-target="#addFullModal">إضافة مشتريات </a>
-            <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
+                @endif
+                @if (auth()->user()->hasPermission('suppliers_create'))
+                <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
+                @endif
                
 
         </div>
@@ -17,7 +21,7 @@
             <table id="dataTable" class="table-striped table">
                 <thead>
                     <tr>
-                        <th>المرجع</th>
+                        <th>رقم الفاتوره</th>
                         <th>اسم المورد</th>
                         <th>اجمالي المشتريات</th>
                         <th>اجراء</th>
@@ -26,8 +30,8 @@
                 <tbody>
                     @foreach ($purchases as $purchase)
                         <tr>
-                            <td><a
-                                    href="{{ route("purchases.show", $purchase->id) }}">{{ $purchase->reference_id ?? $purchase->id }}</a>
+                            <td>
+                                {{ $purchase->reference_id ?? $purchase->id }} 
                             </td>
                             <td> {{ optional($purchase->supplier)->name }}</td>
                             <td>{{ number_format($purchase->total, 2) }}</td>
@@ -88,6 +92,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>اسم المنتج</th>
+                                                    <th>الصنف  </th>
                                                     <th>الكمية المتاحة</th>
                                                     {{-- <th>سعر البيع</th> --}}
                                                     <th>الإجراءات</th>
@@ -176,6 +181,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>اسم المنتج</th>
+                                                    <th> الصنف  </th>
                                                     <th>الكمية المتاحة</th>
                                                     <th>الإجراءات</th>
                                                 </tr>
@@ -242,17 +248,20 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <h5>معلومات المورد</h5>
-                                    <p><strong>الاسم:</strong> <span id="modal-supplier"></span></p>
+                                     <strong>الاسم:</strong> <span id="modal-supplier"></span> 
                                 </div>
                                 <div class="col-md-6 text-end">
                                     <h5>معلومات الشركة</h5>
                                     <p><strong>تالين</strong></p>
                                 </div>
                             </div>
+        <div id="order-list" class="table-responsive order-list text-cenetr">
+
                             <table class="table-bordered table">
                                 <thead>
                                     <tr>
-                                        <th>اسم الصنف</th>
+                                        <th>اسم المنتج</th>
+                                        <th>  الصنف</th>
                                         <th>الكمية</th>
                                         <th>سعر الوحدة</th>
                                         <th>الإجمالي</th>
@@ -263,18 +272,18 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="3" class="text-end">الإجمالي الكلي:</th>
+                                        <th colspan="4" class="text-end">إجمالي المبلغ الكلي:</th>
                                         <th id="modal-total"></th>
                                     </tr>
                                 </tfoot>
-                            </table>
+                            </table></div>
                             <div class="mt-4 text-center">
                                 <p>شكراً لتعاملكم معنا</p>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
                         <button type="button" class="btn btn-primary" id="print-modal-btn">طباعة</button>
                     </div>
                 </div>
@@ -296,10 +305,6 @@
                             <label class="form-label">اسم المورد</label>
                             <input name="name" class="form-control" value="{{ old("name") }}">
                         </div>
-                        {{-- <div class="mb-3">
-                            <label class="form-label">الريد الالكتروني</label>
-                            <input name="email" class="form-control" value="{{ old("email") }}">
-                        </div> --}}
                         <div class="mb-3">
                             <label class="form-label">رقم الهاتف</label>
                             <input name="phone" class="form-control" value="{{ old("phone") }}">

@@ -17,14 +17,18 @@
                 <td>{{ __("trans." . $account->type) }}</td>
                 <td>{{ ($account->kind === "payment" ? ' - '.number_format($account->balance ?? 0, 2)   : ' + ' . number_format($account->balance ?? 0, 2)  ) }}</td>
                 <td >
+                    @if (auth()->user()->hasPermission('accounts_read'))
                     <a href="{{ route("accounts.show", $account->id) }}"
                         class="btn btn-sm btn-secondary">عرض</a>
+                    @endif
 
                     @if ($account->kind === "receipt")
+                        @if (auth()->user()->hasPermission('transactions_create'))
                         <a class="btn btn-success" href="#" data-bs-toggle="modal"
                             data-bs-target="#receiveModal-{{ $account->id }}"
                             href="{{ route("transactions.receipt.create") }}?account_id={{ $account->id }}">سند
                             قبض</a>
+                        @endif
                         <!-- Add Supplier Modal -->
                         <div class="modal fade" id="receiveModal-{{ $account->id }}" tabindex="-1">
                             <div class="modal-dialog">
@@ -172,11 +176,13 @@
                         <a href="{{ route("transactions.payment.create") }}?account_id={{ $account->id }}"
                             class="btn btn-success"> فاتورة </a>
                     @endif --}}
+                    @if (auth()->user()->hasPermission('accounts_delete'))
                     <form action="{{ route('accounts.destroy', $account->id) }}" method="POST" style="display:inline-block">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-sm btn-danger">حذف</button>
                     </form>
+                    @endif
                 </td>
             </tr>
         @endforeach

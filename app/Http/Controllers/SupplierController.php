@@ -6,7 +6,18 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
-{
+{ 
+        public function __construct()
+    {
+                $this->middleware('auth');
+        $this->middleware(['permission:suppliers_read'])->only('index');
+        $this->middleware(['permission:suppliers_read'])->only('show');
+        $this->middleware(['permission:suppliers_create'])->only('create');
+        $this->middleware(['permission:suppliers_create'])->only('store');
+        $this->middleware(['permission:suppliers_update'])->only('edit');
+        $this->middleware(['permission:suppliers_update'])->only('update');
+        $this->middleware(['permission:suppliers_delete'])->only('destroy');
+    }
     public function index(Request $request)
     {
         $search = $request->get('search');
@@ -20,8 +31,7 @@ class SupplierController extends Controller
 
     public function create()
     {
-        $accounts = \App\Models\Account::pluck('name', 'id');
-        return view('suppliers.create', compact('accounts'));
+       
     }
 
     public function store(Request $request)
@@ -45,8 +55,7 @@ class SupplierController extends Controller
 
     public function edit(Supplier $supplier)
     {
-        $accounts = \App\Models\bank::pluck('name', 'id');
-        return view('suppliers.edit', compact('supplier', 'accounts'));
+ 
     }
 
     public function update(Request $request, Supplier $supplier)
