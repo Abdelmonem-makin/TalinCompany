@@ -52,7 +52,7 @@
                                 <td>{{ $s->expiry ? $s->expiry->format("Y-m-d") : "غير محدد" }}</td>
                                 <td>{{ $s->note }}</td>
                                 <td>
-                                    @if ($s->type == "مبيعات" && $s->status == "draft")
+                                    @if ($s->type == "مبيعات" && $s->status == "sold")
                                         <a class="btn issuebtn btn-sm btn-primary" href="#"
                                             data-reference_id='{{ $s->reference_id }}' data-id='{{ $s->id }}'
                                             data-customer_id='{{ optional($s->Sales)->customer_id }}'
@@ -111,7 +111,7 @@
                                 <label class="form-label">العميل</label>
                                 <input type="hidden" value="" name="customer_id" id="customer_id" required>
                                 <select disabledid='customer_id-v' class="form-control">
-                                    <option value=""> عميل افتراضي</option>
+                                    <option value="defaultCustomer"> عميل افتراضي</option>
                                     @foreach (\App\Models\Customer::pluck("name", "id") as $id => $name)
                                         <option value="{{ $id }}">
                                             {{ $name }}</option>

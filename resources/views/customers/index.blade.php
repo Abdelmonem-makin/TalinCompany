@@ -1,7 +1,7 @@
 @extends("layouts.app")
 
 @section("content")
-    <main class="container py-4">
+    <main class="container  ">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>العملاء</h1>
@@ -13,6 +13,7 @@
             @endif
 
         </div>
+        <div class="card m-0 p-3">
  
             <table id="dataTable" class="table-striped table">
                 <thead>
@@ -91,6 +92,7 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
     </main>
     <div class="modal fade" id="addSupplierModal" tabindex="-1" data-bs-backdrop="static"
         data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">

@@ -1,4 +1,21 @@
 $(function () {
+    // ==================== Show Product Modal Handler ====================
+    // Handle loading content into modals via data-url attribute
+    $('#show_modalId').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var url = button.data('url');
+        
+        if (url) {
+            // Load content via AJAX
+            $.get(url, function (data) {
+                $('#order-list').html(data);
+            }).fail(function (xhr, status, error) {
+                console.error('Failed to load order:', status, error);
+                $('#order-list').html('<div class="text-center p-4">حدث خطأ في تحميل البيانات</div>');
+            });
+        }
+    });
+
     // ==================== User Edit Modal ====================
     // Handle click on edit user button
     $('.editUserBtn').on('click', function () {

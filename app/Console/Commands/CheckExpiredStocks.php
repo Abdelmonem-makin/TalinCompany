@@ -31,10 +31,30 @@ class CheckExpiredStocks extends Command
             ->get();
 
         foreach ($expiredStocks as $stock) {
-            $stock->update(['is_expired' => true]);
-            // Decrement the item's stock by the quantity in this stock entry
-            if ($stock->item) {
-                $stock->item->decrement('stock', $stock->qun);
+            // mark expired
+            $stock->is_expired = true;
+            $stock->save();
+
+            // if there is remaining quantity, create a disposal entry and decrement item stock
+            $remaining = $stock->remaining ?? 0;
+            if ($remaining > 0) {
+                \App\Models\Stock::create([
+                    'item_id' => $stock->item_id,
+                    'quantity' => -1 * $remaining,
+                    'type' => 'تخلص',
+                    'note' => 'تم التخلص من منتجات منتهية الصلاحية - كمية: ' . $remaining . ' من ' . ($stock->item->name ?? ''),
+                    'status' => 'dispose',
+                    'expiry' => $stock->expiry,
+                ]);
+
+                if ($stock->item) {
+                    $stock->item->decrement('stock', $remaining);
+                }
+
+                // zero out the remaining on the original stock batch and mark disposed
+                $stock->remaining = 0;
+                $stock->status = 'dispose';
+                $stock->save();
             }
         }
 

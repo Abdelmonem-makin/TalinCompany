@@ -21,7 +21,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('items', App\Http\Controllers\ItemController::class);
         Route::get('items-data', [App\Http\Controllers\ItemController::class, 'getItemsData'])->name('items.data');
         Route::get('items/{item}/stock', [App\Http\Controllers\ItemController::class, 'getStock'])->name('items.stock');
-        // Sales and lines
+        // Sales and lines 
+        
+        // 9530444 مخمد عزالدين
         Route::resource('sales', App\Http\Controllers\SaleController::class);
         Route::put('sales/{sale}/update-sales', [App\Http\Controllers\SaleController::class, 'updateSales'])->name('sales.update-sales');
         Route::get('sales/{sale}/data', [App\Http\Controllers\SaleController::class, 'getSaleData'])->name('sales.data');

@@ -23,21 +23,21 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Get today's sales
-        $todaySales = \App\Models\Sales::whereDate('created_at', today())->sum('total');
+        // Get today's sales (Sales.total uses `total` column and `date` attribute)
+        $todaySales = \App\Models\Sales::whereDate('date', today())->sum('total');
 
-        // Get total inventory
-        $totalInventory = \App\Models\Stock::sum('quantity');
+        // Get total inventory from Items table (accurate stock per item)
+        $totalInventory = \App\Models\Item::sum('stock');
 
-        // Get pending invoices
-        $pendingInvoices = \App\Models\Invoice::where('status', 'pending')->count();
+        // Get pending invoices (uses Invoice.status)
+        $pendingInvoices = \App\Models\Stock::where('status', 'sold')->orwhere('status', 'draft')->count();
 
-        // Get items running low
-        $lowStockItems = \App\Models\Stock::where('quantity', '<=', 10)->count();
+        // Get items running low (items with stock <= 10)
+        $lowStockItems = \App\Models\Item::where('stock', '<=', 10)->count();
 
-        // Get top customers
-        $topCustomers = \App\Models\Customer::withSum('sales', 'total')
-            ->orderBy('sales_sum_total_amount', 'desc')
+        // Get top customers by sales total
+        $topCustomers = \App\Models\Customer::withSum('Sales', 'total')
+            ->orderByDesc('Sales_sum_total')
             ->take(5)
             ->get();
 

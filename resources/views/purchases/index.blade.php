@@ -3,20 +3,20 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>المشتريات</h1>
-                 <div class="col-md-4">
-                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
-                </div>
-                @if (auth()->user()->hasPermission('purchases_create'))
-                <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal"
-                    data-bs-target="#addFullModal">إضافة مشتريات </a>
-                @endif
-                @if (auth()->user()->hasPermission('suppliers_create'))
-                <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
-                @endif
-               
+            <div class="col-md-4">
+                <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
+            </div>
+            @if (auth()->user()->hasPermission("purchases_create"))
+                <a class="btn btn-sm btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addFullModal">إضافة
+                    مشتريات </a>
+            @endif
+            @if (auth()->user()->hasPermission("suppliers_create"))
+                <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة
+                    مورد</a>
+            @endif
 
         </div>
-    
+
         <div class="card table-responsive">
             <table id="dataTable" class="table-striped table">
                 <thead>
@@ -31,19 +31,11 @@
                     @foreach ($purchases as $purchase)
                         <tr>
                             <td>
-                                {{ $purchase->reference_id ?? $purchase->id }} 
+                                {{ $purchase->reference_id ?? $purchase->id }}
                             </td>
                             <td> {{ optional($purchase->supplier)->name }}</td>
                             <td>{{ number_format($purchase->total, 2) }}</td>
                             <td>
-
-                                <button class="btn btn-sm btn-warning editpurchasesFullBtn" data-id="{{ $purchase->id }}"
-                                    data-reference="{{ $purchase->reference_id ?? $purchase->id }}"
-                                    data-supplier="{{ $purchase->supplier_id }}" data-bs-toggle="modal"
-                                    data-bs-target="#editpurchasesFullBtn">
-                                    تعديل
-                                </button>
-
                                 <button class="btn btn-sm btn-success printBtn" data-id="{{ $purchase->id }}"
                                     data-reference="{{ $purchase->reference_id ?? $purchase->id }}"
                                     data-supplier="{{ optional($purchase->supplier)->name }}"
@@ -51,6 +43,12 @@
                                     data-total="{{ number_format($purchase->total, 2) }}" data-bs-toggle="modal"
                                     data-bs-target="#printModal">
                                     طباعة
+                                </button>
+                                <button class="btn btn-sm btn-warning editpurchasesFullBtn" data-id="{{ $purchase->id }}"
+                                    data-reference="{{ $purchase->reference_id ?? $purchase->id }}"
+                                    data-supplier="{{ $purchase->supplier_id }}" data-bs-toggle="modal"
+                                    data-bs-target="#editpurchasesFullBtn">
+                                    تعديل
                                 </button>
 
                                 <form action="{{ route("purchases.destroy", $purchase) }}" method="POST"
@@ -92,7 +90,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>اسم المنتج</th>
-                                                    <th>الصنف  </th>
+                                                    <th>الوحده </th>
                                                     <th>الكمية المتاحة</th>
                                                     {{-- <th>سعر البيع</th> --}}
                                                     <th>الإجراءات</th>
@@ -160,7 +158,8 @@
         </div>
 
         <!-- Modal for Edit Full Purchase -->
-        <div class="modal fade" id="editpurchasesFullBtn" tabindex="-1" aria-labelledby="editFullModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editpurchasesFullBtn" tabindex="-1" aria-labelledby="editFullModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -181,7 +180,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>اسم المنتج</th>
-                                                    <th> الصنف  </th>
+                                                    <th> الوحده </th>
                                                     <th>الكمية المتاحة</th>
                                                     <th>الإجراءات</th>
                                                 </tr>
@@ -238,90 +237,94 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="printModalLabel">طباعة الفاتورة</h5>
                     </div>
-                    <div class="modal-body">
-                        <div id="invoice-print-content">
+                    <div id="invoice-print-content" class="modal-body">
+                        <div>
                             <div class="mb-4 text-center">
-                                <h2>فاتورة مشتريات</h2>
-                                <p><strong>رقم الفاتورة:</strong> <span id="modal-reference-id"></span></p>
-                                <p><strong>تاريخ:</strong> <span id="modal-date"></span></p>
+                                <p><strong>شركة تالين الطبيه</strong></p>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <h5>معلومات المورد</h5>
-                                     <strong>الاسم:</strong> <span id="modal-supplier"></span> 
+                            {{-- <div class="row mb-3">
+                                <div class="col-md-12">
+                       
                                 </div>
-                                <div class="col-md-6 text-end">
-                                    <h5>معلومات الشركة</h5>
-                                    <p><strong>تالين</strong></p>
-                                </div>
+                            </div> --}}
+                            <div class="table-responsive order-list text-cenetr">
+                                <table class="table-bordered table">
+                                        <tr>
+                                            <th colspan="5">
+                                                             <span class="mx-2"><strong>رقم الفاتورة:</strong> <span
+                                            id="modal-reference-id"></span></span>
+                                    <span class="mx-2"> <strong>المورد :</strong> <span class="mx-1"
+                                            id="modal-supplier"></span></span>
+                                    <span class="mx-2"> <strong>التاريخ :</strong> <span class="mx-1"
+                                            id="modal-date"></span></span>
+                                    <span class="mx-2"> <strong>المندوب :</strong> <span
+                                            class="mx-1">{{ Auth::user()->name }}</span></span>
+                                            </th></tr>
+                                            <tr>
+                                            <th>اسم المنتج</th>
+                                            <th> الوحده</th>
+                                            <th>الكمية</th>
+                                            <th>سعر الوحدة</th>
+                                            <th>الإجمالي</th>
+                                        </tr>
+                                    <tbody id="modal-lines">
+                                        <!-- Lines will be populated via JavaScript -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4" class="text-end">إجمالي المبلغ الكلي:</th>
+                                            <th id="modal-total"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
-        <div id="order-list" class="table-responsive order-list text-cenetr">
-
-                            <table class="table-bordered table">
-                                <thead>
-                                    <tr>
-                                        <th>اسم المنتج</th>
-                                        <th>  الصنف</th>
-                                        <th>الكمية</th>
-                                        <th>سعر الوحدة</th>
-                                        <th>الإجمالي</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modal-lines">
-                                    <!-- Lines will be populated via JavaScript -->
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colspan="4" class="text-end">إجمالي المبلغ الكلي:</th>
-                                        <th id="modal-total"></th>
-                                    </tr>
-                                </tfoot>
-                            </table></div>
                             <div class="mt-4 text-center">
                                 <p>شكراً لتعاملكم معنا</p>
                             </div>
                         </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
-                        <button type="button" class="btn btn-primary" id="print-modal-btn">طباعة</button>
+                        <button type="button" class="btn btn-primary print-order-btn"
+                            id="print-modal-btn">طباعة</button>
                     </div>
                 </div>
             </div>
         </div>
-    <!-- Add Supplier Modal -->
-    <div class="modal fade" id="addSupplierModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">إضافة مورد</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
+        <!-- Add Supplier Modal -->
+        <div class="modal fade" id="addSupplierModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">إضافة مورد</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
 
-                    <form id="supplierForm" method="POST" action="{{ route("suppliers.store") }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label">اسم المورد</label>
-                            <input name="name" class="form-control" value="{{ old("name") }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">رقم الهاتف</label>
-                            <input name="phone" class="form-control" value="{{ old("phone") }}">
-                        </div>
-                        {{-- <div class="mb-3">
+                        <form id="supplierForm" method="POST" action="{{ route("suppliers.store") }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">اسم المورد</label>
+                                <input name="name" class="form-control" value="{{ old("name") }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">رقم الهاتف</label>
+                                <input name="phone" class="form-control" value="{{ old("phone") }}">
+                            </div>
+                            {{-- <div class="mb-3">
                             <label class="form-label">العنوان</label>
                             <textarea name="address" class="form-control">{{ old("address") }}</textarea>
                         </div> --}}
-                        <div class="modal-footer">
-                            <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
-                            <button id="saveSupplierBtn" class="btn btn-primary">حفظ</button>
-                        </div>
-                    </form>
-                </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</a>
+                                <button id="saveSupplierBtn" class="btn btn-primary">حفظ</button>
+                            </div>
+                        </form>
+                    </div>
 
+                </div>
             </div>
         </div>
-    </div>
         {{ $purchases->links() }}
     @endsection

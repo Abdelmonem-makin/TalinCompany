@@ -4,8 +4,9 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>المبيعات</h1>
             <div class="col-md-4">
-                <form method="GET" action="{{ route('sales.index') }}" class="d-flex">
-                    <input type="text" name="search" class="form-control" placeholder="بحث بالاسم أو رقم الفاتورة" value="{{ $search ?? '' }}">
+                <form method="GET" action="{{ route("sales.index") }}" class="d-flex">
+                    <input type="text" name="search" class="form-control" placeholder="بحث بالاسم أو رقم الفاتورة"
+                        value="{{ $search ?? "" }}">
                     <button type="submit" class="btn btn-outline-secondary ms-2">بحث</button>
                 </form>
             </div>
@@ -60,49 +61,57 @@
                                     <div class="col-md-8">
                                         <div class="card-body">
                                             <div class="table-responsive">
-                                                @if ($items->count() > 0)
+                                                {{-- @if ($items->count() > 0) --}}
                                                     <table id="dataTable2"
                                                         class="table-bordered table-striped mg-b-0 text-md-nowrap table p-0 text-center">
                                                         <thead>
                                                             <tr>
                                                                 <th> #</th>
                                                                 <th> اسم الدواء</th>
+                                                                <th> الوحده</th>
                                                                 <th>الكميه</th>
                                                                 <th>السعر </th>
                                                                 <th>الاجراءات</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @isset($items)
+                                                            {{-- @isset($items) --}}
                                                                 @foreach ($items as $index => $Product)
                                                                     <tr>
                                                                         <td class="pt-4" scope="row">
                                                                             {{ $index + 1 }}</td>
                                                                         <td scope="row">{{ $Product->name }}</td>
+                                                                        <td scope="row">{{ $Product->type }}</td>
                                                                         <td scope="row">{{ $Product->stock }}</td>
                                                                         <td scope="row">{{ $Product->price }}</td>
-
                                                                         <td>
-                                                                            <a id="product-sales{{ $Product->id }}"
-                                                                                data-name="{{ $Product->name }}"
-                                                                                data-id="{{ $Product->id }}"
-                                                                                data-price="{{ $Product->price }}"
-                                                                                class="btn btn-dark add-product_sales-btn my-0 px-4 py-0"
-                                                                                href="">
-                                                                                <i class="fa fa-plus"
-                                                                                    aria-hidden="true"></i>اضافه
-                                                                            </a>
+                                                                            {{-- @if($Product->stock > 0) --}}
+                                                                                <a id="product-sales{{ $Product->id }}"
+                                                                                    data-name="{{ $Product->name }}"
+                                                                                    data-id="{{ $Product->id }}"
+                                                                                    data-price="{{ $Product->price }}"
+                                                                                    class="btn btn-dark add-product_sales-btn my-0 px-4 py-0"
+                                                                                    href="">
+                                                                                    <i class="fa fa-plus"
+                                                                                        aria-hidden="true"></i>اضافه
+                                                                                </a>
+                                                                            {{-- @else
+                                                                                <button class="btn btn-secondary disabled my-0 px-4 py-0" disabled
+                                                                                    title="غير متاح أو منتهي الصلاحية">
+                                                                                    <i class="fa fa-plus" aria-hidden="true"></i>اضافه
+                                                                                </button>
+                                                                            @endif --}}
 
                                                                         </td>
                                                                     </tr>
                                                                 @endforeach
-                                                            @endisset
+                                                            {{-- @endisset --}}
                                                         </tbody>
                                                     </table>
                                                     {{ $items->links() }}
-                                                @else
+                                                {{-- @else
                                                     <h4 class="text-center">لا توجد سجلات للعرض</h4>
-                                                @endif
+                                                @endif --}}
                                             </div><!-- bd -->
                                         </div><!-- bd -->
                                     </div>
@@ -166,7 +175,7 @@
                                                                     </div>
                                                                     <div class="col-md-6">
                                                                         <button type="submit" id="add-sales-btn"
-                                                                            class="btn   btn-success disabled my-3 text-center">
+                                                                            class="btn btn-success disabled my-3 text-center">
                                                                             تاكيد الطلب
                                                                         </button>
                                                                         <button type="button" class="btn btn-dark"
@@ -261,7 +270,6 @@
                         <th>اسم العميل</th>
                         <th>احمالي المبلغ</th>
                         <th>التاريخ</th>
-                        <th>الحاله</th>
                         <th>اجراء</th>
                     </tr>
                 </thead>
@@ -273,11 +281,15 @@
                             </td>
                             <td>{{ number_format($sale->total, 2) }}</td>
                             <td>{{ $sale->date->format("Y-m-d") }}</td>
-                            <td>{{ $sale->status }}</td>
+                            {{-- <td>{{ $sale->status }}</td> --}}
                             <td>
-                                <button class="Show-product btn btn-sm btn-outline-primary my-1" data-bs-toggle="modal"
+                                <button class="Show-product btn btn-sm btn-success my-1" data-bs-toggle="modal"
                                     data-url="{{ route("show-sales-order", $sale->id) }}" data-bs-target="#show_modalId"
-                                    data-method="get">عرض الطلبات</button>
+                                    data-method="get" data-id="{{ $sale->id }}"
+                                    data-invoice="{{ $sale->invoice_number }}"
+                                    data-customer="{{ optional($sale->customer)->name ? optional($sale->customer)->name : "عميل افتراضي" }}"
+                                    data-date="{{ $sale->date ? $sale->date->format("Y-m-d") : now()->format("Y-m-d") }}"
+                                    data-total="{{ number_format($sale->total, 2) }}">طباعه </button>
 
                                 <div class="modal fade" id="show_modalId" tabindex="-1" data-bs-backdrop="static"
                                     data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId"
@@ -286,24 +298,25 @@
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="modalTitleId">
-                                                    قائمة الطلبات
+                                                    الطلبات
                                                 </h5>
 
                                             </div>
                                             <div class="modal-body">
                                                 {{-- <div class="col-md-12"> --}}
-                                                    <div class="list-order-product">
+                                                <div id="order-list" class="list-order-product">
 
-                                                    </div>
+                                                </div>
 
-                                                 
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                                     رجوع
                                                 </button>
-                                                <a href="http://" class="btn print-order-btn btn-success">
-                                                    طباعه</a>
+                                                <button type="button"
+                                                    class="btn btn-success print-order-btn printSaleBtn">
+                                                    طباعه
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -439,8 +452,56 @@
                 </div>
             </div>
         </div>
-        {{ $sales->links() }}
-    </div>
 
-    bs5-ta
-@endsection
+        <!-- Modal for Sales Print -->
+        <div class="modal fade" id="printSaleModal" tabindex="-1" aria-labelledby="printSaleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="printSaleModalLabel">طباعة الفاتورة</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="sale-print-content">
+                            <div class="mb-4 text-center">
+                                <p><strong>شركة تالين الطبيه</strong></p>
+                                <h2>فاتورة مبيعات</h2>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <span class="mx-3"><strong>رقم الفاتوره: </strong><span
+                                            id="sale-modal-invoice"></span></span>
+                                    <span class="mx-3"><strong> تاريخ الطلب: </strong><span
+                                            id="sale-modal-date"></span></span>
+                                    <span class="mx-3"><strong> اسم العميل: </strong><span
+                                            id="sale-modal-customer"></span></span>
+                                    <span class="mx-3"><strong> عدد الطلبات: </strong><span
+                                            id="sale-modal-item-count"></span></span>
+                                </div>
+                            </div>
+                            <table
+                                class="table-bordered table-striped text-md-nowrap mb-2 table p-0 text-center text-right">
+                                <thead>
+                                    <tr>
+                                        <th>اسم المنج</th>
+                                        <th>الوحده</th>
+                                        <th>الكميه</th>
+                                        <th>سعر</th>
+                                        <th>اجمالي المبلغ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sale-modal-lines">
+                                    <!-- Lines will be populated via JavaScript -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">اجمال المبيلغ الكلي:</th>
+                                        <th id="sale-modal-total"> SD </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endsection

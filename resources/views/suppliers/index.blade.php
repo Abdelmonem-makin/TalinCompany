@@ -1,21 +1,19 @@
 @extends("layouts.app")
 
 @section("content")
-    <main class="container py-4">
+    <main class="container ">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1>إدارة الموردين</h1>
+               <div class="col-md-4">
+                    <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
+                </div>
             @if (auth()->user()->hasPermission('suppliers_create'))
             <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addSupplierModal">إضافة مورد</a>
             @endif
         </div>
 
         <div class="card p-3">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input class="form-control" id="searchInput" placeholder="بحث بالاسم أو الرقم" oninput="searchTable()">
-                </div>
-
-            </div>
+   
             <div class="table-responsive">
                 <table id="dataTable" class="table-hover table">
                     <thead>

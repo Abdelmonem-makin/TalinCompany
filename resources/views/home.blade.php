@@ -18,8 +18,8 @@
             <div class="card p-3 h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title text-primary">مبيعات اليوم</h5>
-                    <p class="display-6 fw-bold">$12,450</p>
-                    <small class="text-muted">زيادة 5% عن الأمس</small>
+                    <p class="display-6 fw-bold">{{ number_format($todaySales, 2) }}</p>
+                    <small class="text-muted">مجموع الفواتير المسجلة اليوم</small>
                 </div>
             </div>
         </div>
@@ -27,8 +27,8 @@
             <div class="card p-3 h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title text-success">المخزون المتاح</h5>
-                    <p class="display-6 fw-bold">8,320 عبوة</p>
-                    <small class="text-muted">من 15 صنف</small>
+                    <p class="display-6 fw-bold">{{ number_format($totalInventory) }} وحدة</p>
+                    <small class="text-muted">عدد إجمالي الوحدات في المخزون</small>
                 </div>
             </div>
         </div>
@@ -36,21 +36,28 @@
             <div class="card p-3 h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title text-danger">فواتير مستحقة</h5>
-                    <p class="display-6 fw-bold">$3,240</p>
-                    <small class="text-muted">3 فواتير</small>
+                    <p class="display-6 fw-bold">{{ $pendingInvoices }}</p>
+                    <small class="text-muted">فواتير بوضعية انتظار</small>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-3">
             <div class="card p-3 h-100 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title text-warning">أصناف قاربت الانتهاء</h5>
-                    <p class="display-6 fw-bold">12</p>
-                    <small class="text-muted">تحتاج إعادة طلب</small>
+                    <h5 class="card-title text-warning">أصناف منخفضة المخزون</h5>
+                    <p class="display-6 fw-bold">{{ $lowStockItems }}</p>
+                    <small class="text-muted">أصناف مخزونها ≤ 10</small>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="mb-4 d-flex gap-2">
+        <a href="{{ route('sales.index') }}" class="btn btn-primary">إنشاء فاتورة</a>
+        <a href="//{{ route('purchases.index') }}" class="btn btn-secondary">إضافة مشتريات</a>
+        <a href="{{ route('items.index') }}" class="btn btn-outline-primary">عرض الأصناف</a>
+        <a href="{{ route('stock.index') }}" class="btn btn-outline-warning">عرض المخزون</a>
+    </div>
 
     <section class="row g-4">
         <div class="col-12 col-lg-6">

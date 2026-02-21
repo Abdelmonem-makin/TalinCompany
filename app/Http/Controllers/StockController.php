@@ -76,7 +76,7 @@ class StockController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
             'customer_id' => 'nullable|exists:customers,id',
             'sign' => 'nullable|in:-1,1',
-            'expiry' => 'required|date',
+            'expiry' => 'nullable|date',
         ]);
 
         // apply sign if provided (issue -> negative)
@@ -99,25 +99,34 @@ class StockController extends Controller
 
             $meta[] = 'تم صرف مبيعات الى عميل :- ' . $customer->name . '    عدد ' . abs($validated['change']) . ' من الصنف ' . $itemst->name;
         }
-        if ( !empty($validated['customer_id']) == 'defaultCustomer') {
-            $meta[] = 'تم صرف مبيعات الى عميل :-   افتراضي     عدد ' . abs($validated['change']) . ' من الصنف ' . $itemst->name;
+        if (empty($validated['customer_id']) && $validated['change'] < 0) {
+            $meta[] = 'تم صرف مبيعات الى عميل :- افتراضي عدد ' . abs($validated['change']) . ' من الصنف ' . $itemst->name;
         }
         if (!empty($meta)) {
             $validated['note'] = trim(($validated['note'] ?? '') . ' | ' . implode(' | ', $meta), " | ");
         }
         $stockid = Stock::find($validated['stock']);
-        $stocks = $stockid->remaining + $validated['change'];
-        if ($stockid->quantity < $stocks) {
-            return redirect()->back()->withErrors(['      الكمية المدخلة تتجاوز الكمية المشتراه في هذا السجل.']);
+        if (!$stockid) {
+            return redirect()->back()->withErrors(['سجل المخزون غير موجود']);
         }
 
-        // build data for Stock (only fillable fields)
+        // Prevent selling from an expired stock batch
+        if (isset($validated['change']) && $validated['change'] < 0 && $stockid->is_expired) {
+            return redirect()->back()->withErrors(['لا يمكن صرف منتجات منتهية الصلاحية من هذا السجل.']);
+        }
 
+        // Ensure remaining quantity in the purchase batch is sufficient
+        $newRemaining = $stockid->remaining + $validated['change'];
+        if ($newRemaining < 0) {
+            return redirect()->back()->withErrors(['الكمية المتاحة في هذا السجل أقل من المطلوبة.']);
+        }
+        // build data for Stock (only fillable fields)
         $stockData = [
-            // 'purchase_id' => $validated['reference_id'],
+            'purchase_id' => $validated['reference_id'],
             'item_id' => $validated['item_id'],
             'quantity' => $validated['change'],
-            'type' => !empty($validated['customer_id']) ? 'مبيعات' : 'مشتريات',
+            // determine type from sign of change: negative = sales, positive = purchase
+            'type' => ($validated['change'] < 0) ? 'مبيعات' : 'مشتريات',
             'reference_id' => $validated['reference_id'] ?? null,
             'note' => ($validated['note'] ?? ''),
             'status' => 'confirm',

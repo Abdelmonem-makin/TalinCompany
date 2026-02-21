@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();
             $table->integer('quantity');
+            $table->integer('batch_id')->nullable();
             $table->integer('remaining')->nullable()->default(0);
             $table->string('type')->nullable(); // e.g. purchase, sale, adjustment
             $table->date('expiry')->nullable();

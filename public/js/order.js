@@ -89,7 +89,23 @@ $(function () {
     });//حصاب قمة عدد من المنتجات و ايجاد  و قيمتها
     $(document).on('click', '.print-order-btn', function (e) {
         e.preventDefault();
-        $('#order-list').printThis();
+        $('#order-list').printThis({
+            importCSS: true,
+            importStyle: true,
+            loadCSS: '{{ asset("css/bootstrap.min.css") }}',
+            pageTitle: "فاتورة مشتريات - " + $('#modal-reference-id').text(),
+            removeInline: false,
+            printDelay: 333,
+            beforePrint: function () {
+                $('body').css({
+                    "direction": "rtl",
+                    "text-aling": "right",
+
+                });
+            },
+            header: null,
+            footer: null
+        });;
     });   //لطباعة فاتورة
     $(document).on('click', '.print-order-bill', function (e) {
         e.preventDefault();

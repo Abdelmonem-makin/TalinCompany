@@ -1,7 +1,7 @@
 @extends("layouts.app")
 @section("content")
-    <main class="container py-4">
-        <div class="d-flex justify-content-between align-items-center m-2">
+    <main class="container  ">
+        <div class="d-flex justify-content-between align-items-center mb-2">
             <h1>المنتجات</h1>
                  <div class="col-md-4">
                     <input class="form-control" placeholder="بحث بالاسم" oninput="searchTable()" id="searchInput">
@@ -18,7 +18,7 @@
                     <tr>
                         <th>اسم المنتجات</th>
                         <th>الشركه المصنعه</th>
-                        <th>  الصنف   </th>
+                        <th>  الوحده   </th>
                         <th>سعر البيع</th>
                         <th>المخزون</th>
                         <th>اجراء</th>

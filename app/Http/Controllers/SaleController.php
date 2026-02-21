@@ -16,10 +16,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
-{ 
-        public function __construct()
+{
+    public function __construct()
     {
         $this->middleware('auth');
         $this->middleware(['permission:sales_read'])->only('index');
@@ -34,23 +35,41 @@ class SaleController extends Controller
     {
         $search = $request->get('search');
         $customers = Customer::pluck('name', 'id');
-        $items = Item::with('supplier')->latest()->paginate(5);
-        $sales = Sales::with('customer')->when($search, function ($query) use ($search) {
+        // Only load items that have non-expired remaining stock
+        $items = Item::with('Stocks')
+
+            // whereHas('Stocks', function($q){
+            //         $q->where(function($q2){
+            //             $q2->whereNull('is_expired')->orWhere('is_expired', false);
+            //         })->where('remaining', '>', 0);
+            //     })->with('supplier')
+
+            ->latest()->paginate(5);
+        // compute available non-expired remaining per item for UI decisions
+        foreach ($items as $it) {
+            $it->available = Stock::where('item_id', $it->id)
+                ->where(function ($q) {
+                    $q->whereNull('is_expired')->orWhere('is_expired', false);
+                })
+                ->where('remaining', '>', 0)
+                ->sum('remaining');
+        }
+        $sales = Sales::with('Stock')->when($search, function ($query) use ($search) {
             return $query->where('invoice_number', 'like', '%' . $search . '%')
-                         ->orWhereHas('customer', function ($q) use ($search) {
-                             $q->where('name', 'like', '%' . $search . '%');
-                         });
+                ->orWhereHas('customer', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
         })->latest()->paginate(15)->appends(['search' => $search]);
         return view('sales.index', compact('sales', 'customers', 'items', 'search'));
     }
- 
+
 
     public function store(salesRequest $request)
     {
-        try {
+        // try {
         $validator = FacadesValidator::make($request->all(), []);
         if ($validator->fails()) {
-            return response()->json(['error' => false, 'message' => 'خطأ في بيانات الطلب', 'errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors(['خطأ في بيانات الطلب', 'errors' => $validator->errors()], 422);
         }
         DB::beginTransaction();
         $total_price = 0;
@@ -69,9 +88,20 @@ class SaleController extends Controller
         $attachData = [];
         foreach ($request->products as $id => $quantities) {
             $Item = Item::findOrFail($id);
-            if ($Item->stock < $quantities['quantity']) {
+            // ensure available non-expired stock across batches is sufficient
+            $available = \App\Models\Stock::where('item_id', $Item->id)
+                ->where(function ($q) {
+                    $q->whereNull('is_expired')->orWhere('is_expired', false);
+                })
+                ->where(function ($q) {
+                    $q->whereNull('expiry')->orWhereDate('expiry', '>=', now()->toDateString());
+                })
+                ->where('status', 'confirm')
+                ->sum('quantity');
+
+            if ($available < $quantities['quantity']) {
                 DB::rollBack();
-                return redirect()->back()->withErrors("الكمية المتاحة من المنتج {$Item->name} أقل من المطلوب");
+                return redirect()->back()->withErrors(['amount' =>  "لا يمكن بيع منتج منتهي الصلاحية أو الكمية غير كافية"]);
             }
             $lineTotal = $Item->price * $quantities['quantity'];
             $total_price += $lineTotal;
@@ -82,16 +112,54 @@ class SaleController extends Controller
                 'updated_at' => now(),
             ];
 
-            // decrement stock
-            // $Item->decrement('stock', $quantities['quantity']);
-            Stock::create([
-                'item_id' => $Item->id,
-                'quantity' => -1 * $quantities['quantity'],
-                'type' => 'مبيعات',
-                'reference_id' => $Sales->id,
-                'status' => 'draft',
-                'note' => 'تم بيع ' . $Item->name,
-            ]);
+            // decrement item total stock
+            $Item->decrement('stock', $quantities['quantity']);
+
+            // Allocate quantity from non-expired batches (FIFO by expiry)
+            $needed = intval($quantities['quantity']);
+            $batches = Stock::where('item_id', $Item->id)
+                ->whereDate('expiry', '>=', now()->toDateString())
+                ->where(function ($q) {
+                    $q->whereNull('is_expired')->orWhere('is_expired', 0);
+                })
+                ->where('quantity', '>', 0)
+                ->orderBy('expiry', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            foreach ($batches as $batch) {
+                if ($needed <= 0) break;
+                $take = min($batch->quantity ?? 0, $needed);
+                if ($take <= 0) continue;
+
+                // reduce batch remaining
+                $batch->quantity = max(0, ($batch->quantity ?? 0) - $take);
+                if ($batch->quantity == 0) {
+                    $batch->status = 'sold';
+                }
+                $batch->save();
+
+                // create stock movement linking to this purchase batch
+                Stock::create([
+                    'item_id' => $Item->id,
+                    'quantity' => -1 * $take,
+                    'type' => 'مبيعات',
+                    'reference_id' => $Sales->id,
+                    'sale_id' => $Sales->id,
+                    'purchase_id' => $batch->purchase_id ?? null,
+                    'batch_id' => $batch->id,
+                    'status' => 'sold',
+                    'note' => 'تم بيع ' . $take . ' من ' . ($Item->name ?? '') . ' من الدفعة #' . $batch->id,
+                    'customer_id' => $Sales->customer_id ?? null,
+                ]);
+
+                $needed -= $take;
+            }
+
+            if ($needed > 0) {
+                DB::rollBack();
+                return redirect()->back()->withErrors(["الكمية المطلوبة غير متوفرة بعد تخصيص الدفعات:"]);
+            }
         }
         $Sales->item()->attach($attachData);
         $Sales->update([
@@ -103,11 +171,11 @@ class SaleController extends Controller
         DB::commit();
 
         return redirect()->back()->with('success', 'تم الشراء بنجاح');
-        return response()->json(['success' => true, 'message' => 'تم الشراء بنجاح']);
-        } catch (\Throwable $th) {
-                   return redirect()->back()->with('error', $th);
-            // return response()->json(['error' => true, 'message' =>  $th]);
-        }
+        // return response()->json(['success' => true, 'message' => 'تم الشراء بنجاح']);
+        // } catch (\Throwable $th) {
+        //     Log::error('Sales store error', ['exception' => (string) $th]);
+        //     return redirect()->back()->withErrors([ 'حدث خطأ أثناء إنشاء الفاتورة، يرجى المحاولة لاحقًا.']);
+        // }
     }
     protected function createSalesBankingEntries(Sales $sale, $amount)
     {
@@ -182,6 +250,9 @@ class SaleController extends Controller
 
     public function update(Request $request, Sales $sale)
     {
+        // Make invoices immutable after creation
+        return redirect()->back()->withErrors('الفاتورة غير قابلة للتعديل بعد إنشائها.');
+
         $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'date' => 'nullable|date',
@@ -223,9 +294,14 @@ class SaleController extends Controller
             $attachData = [];
             foreach ($request->products as $id => $quantities) {
                 $Item = Item::findOrFail($id);
-                if ($Item->stock < $quantities['quantity']) {
+                $available = \App\Models\Stock::where('item_id', $Item->id)
+                    ->where(function ($q) {
+                        $q->where('is_expired', false)->orWhereNull('is_expired');
+                    })
+                    ->sum('remaining');
+                if ($available < $quantities['quantity']) {
                     DB::rollBack();
-                    return redirect()->back()->withErrors("الكمية المتاحة من المنتج {$Item->name} أقل من المطلوب");
+                    return redirect()->back()->withErrors("الكمية المتاحة غير كافية من المنتج {$Item->name} (بما في ذلك الدفعات غير منتهية الصلاحية)");
                 }
                 $lineTotal = $Item->price * $quantities['quantity'];
                 $total_price += $lineTotal;
@@ -243,6 +319,7 @@ class SaleController extends Controller
                     'quantity' => -1 * $quantities['quantity'],
                     'type' => 'مبيعات',
                     'reference_id' => $sale->id,
+                    'sale_id' => $sale->id,
                     'status' => 'draft',
                     'note' => 'تم بيع ' . $Item->name,
                 ]);
@@ -265,6 +342,9 @@ class SaleController extends Controller
 
     public function updateSales(Request $request, Sales $sale)
     {
+        // Prevent editing sales - invoices are immutable
+        return redirect()->back()->withErrors('الفاتورة غير قابلة للتعديل بعد إنشائها.');
+
         $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'date' => 'nullable|date',
@@ -306,9 +386,14 @@ class SaleController extends Controller
             $attachData = [];
             foreach ($request->products as $id => $quantities) {
                 $Item = Item::findOrFail($id);
-                if ($Item->stock < $quantities['quantity']) {
+                $available = \App\Models\Stock::where('item_id', $Item->id)
+                    ->where(function ($q) {
+                        $q->where('is_expired', false)->orWhereNull('is_expired');
+                    })
+                    ->sum('remaining');
+                if ($available < $quantities['quantity']) {
                     DB::rollBack();
-                    return redirect()->back()->withErrors("الكمية المتاحة من المنتج {$Item->name} أقل من المطلوب");
+                    return redirect()->back()->withErrors("الكمية المتاحة غير كافية من المنتج {$Item->name} (بما في ذلك الدفعات غير منتهية الصلاحية)");
                 }
                 $lineTotal = $Item->price * $quantities['quantity'];
                 $total_price += $lineTotal;
@@ -326,6 +411,7 @@ class SaleController extends Controller
                     'quantity' => -1 * $quantities['quantity'],
                     'type' => 'مبيعات',
                     'reference_id' => $sale->id,
+                    'sale_id' => $sale->id,
                     'status' => 'draft',
                     'note' => 'تم بيع ' . $Item->name,
                 ]);

@@ -26,6 +26,9 @@ class Stock extends Model
         'note',
         'expiry',
         'is_expired',
+        'customer_id',
+        'sale_id',
+        'batch_id'
     ];
 
     public function item() :BelongsTo

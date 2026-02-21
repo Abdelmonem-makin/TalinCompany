@@ -50,4 +50,18 @@ class Item extends Model
     {
         return $this->hasMany(stock::class, 'item_id');
     }
+
+    public function getNextExpiryAttribute()
+    {
+        $stock = $this->Stocks()
+            ->whereNotNull('expiry')
+            ->where(function($q){
+                $q->where('remaining', '>', 0)
+                  ->orWhere('quantity', '>', 0);
+            })
+            ->orderBy('expiry', 'asc')
+            ->first();
+
+        return $stock ? $stock->expiry : null;
+    }
 }
