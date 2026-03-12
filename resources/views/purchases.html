@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>المشتريات - تالين</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary"><div class="container-fluid"><a class="navbar-brand" href="index.html">تالين</a></div></nav>
+  <main class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+      <h1 class="h4">المشتريات</h1>
+      <div>
+        <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#poModal">طلب شراء جديد</a>
+        <a class="btn btn-outline-secondary ms-2" href="#" data-bs-toggle="modal" data-bs-target="#invoicePurchaseModal">تسجيل فاتورة شراء</a>
+      </div>
+    </div>
+    <div class="card p-3">
+      <p>واجهة لمتابعة أوامر التوريد وتسجيل فواتير الشراء.</p>
+    </div>
+  </main>
+
+  <!-- Purchase Order Modal -->
+  <div class="modal fade" id="poModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">طلب شراء جديد</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="poForm"><div class="mb-2"><label class="form-label">المورد</label><input class="form-control" name="supplier"></div><div class="mb-2"><label class="form-label">العناصر (JSON مثال)</label><textarea class="form-control" name="items" placeholder='[{"sku":"SKU1","qty":100,"cost":50}]'></textarea></div></form></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button id="savePoBtn" class="btn btn-primary">إرسال طلب</button></div></div></div></div>
+
+  <!-- Purchase Invoice Modal -->
+  <div class="modal fade" id="invoicePurchaseModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">تسجيل فاتورة شراء</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="purchaseInvoiceForm"><div class="mb-2"><label class="form-label">المورد</label><input class="form-control" name="supplier"></div><div class="mb-2"><label class="form-label">العناصر (JSON مثال)</label><textarea class="form-control" name="items" placeholder='[{"sku":"SKU1","qty":100,"cost":50}]'></textarea></div></form></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button id="savePurchaseInvoiceBtn" class="btn btn-success">حفظ الفاتورة</button></div></div></div></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('savePoBtn').addEventListener('click', function(){
+      const form = document.getElementById('poForm');
+      if (!form.reportValidity()) return;
+      console.log('PO (demo):', Object.fromEntries(new FormData(form)));
+      bootstrap.Modal.getInstance(document.getElementById('poModal')).hide();
+      alert('تم إرسال طلب الشراء (تجريبي)');
+    });
+    document.getElementById('savePurchaseInvoiceBtn').addEventListener('click', function(){
+      const form = document.getElementById('purchaseInvoiceForm');
+      if (!form.reportValidity()) return;
+      console.log('Purchase Invoice (demo):', Object.fromEntries(new FormData(form)));
+      bootstrap.Modal.getInstance(document.getElementById('invoicePurchaseModal')).hide();
+      alert('تم تسجيل الفاتورة (تجريبي)');
+    });
+  </script>
+</body>
+</html>
